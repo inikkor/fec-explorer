@@ -4,34 +4,35 @@ import time
 import urllib.request
 import urllib.error
 
-# Uses your secure API key stored in GitHub Secrets
 API_KEY = os.environ.get('FEC_API_KEY')
-if not API_KEY:
-    print("Error: FEC_API_KEY environment variable not set.")
-    exit(1)
-
 BASE_URL = 'https://api.open.fec.gov/v1'
-PAC_IDS = ['C00797670', 'C00799031'] #, 'C00441949', 'C00710848', 'C00345132', 'C00697219', 'C00278143']
+PAC_IDS = ['C00797670', 'C00799031', 'C00441949', 'C00710848', 'C00345132', 'C00697219', 'C00278143']
 
 all_results = []
 
-print("Starting FEC data extraction...")
+print(f"--- Pipeline Starting at {time.strftime('%Y-%m-%d %H:%M:%S')} ---")
 
 for pac_id in PAC_IDS:
     page = 1
-    print(f"Fetching data for PAC: {pac_id}")
+    pac_total = 0
+    print(f"[STATUS] Starting download for PAC: {pac_id}")
+    
     while True:
         url = f"{BASE_URL}/schedules/schedule_b/?api_key={API_KEY}&committee_id={pac_id}&two_year_transaction_period=2026&per_page=100&page={page}"
         req = urllib.request.Request(url)
         
         try:
-            with urllib.request.urlopen(req, timeout=15) as response:                
+            with urllib.request.urlopen(req, timeout=15) as response:
                 data = json.loads(response.read())
                 records = data.get('results', [])
                 
-                # Keep the JSON file size small by only saving fields the UI actually uses
+                # Progress logging
+                count = len(records)
+                pac_total += count
+                print(f"  [PAGE {page}] Fetched {count} records...")
+                
                 for r in records:
-                    clean_record = {
+                    all_results.append({
                         "disbursement_date": r.get("disbursement_date"),
                         "disbursement_amount": r.get("disbursement_amount", 0),
                         "recipient_name": r.get("recipient_name"),
@@ -40,21 +41,21 @@ for pac_id in PAC_IDS:
                         "candidate_id": r.get("candidate_id"),
                         "beneficiary_candidate_id": r.get("beneficiary_candidate_id"),
                         "recipient_committee_id": r.get("recipient_committee_id")
-                    }
-                    all_results.append(clean_record)
+                    })
                 
                 pagination = data.get('pagination', {})
                 if page >= pagination.get('pages', 1):
                     break
                 page += 1
-                time.sleep(0.5) # Be polite to the government servers
+                time.sleep(0.6) # Slightly longer pause to ensure API stability
                 
         except urllib.error.URLError as e:
-            print(f"Failed to fetch {pac_id} on page {page}: {e}")
+            print(f"  [ERROR] Failed at PAC {pac_id}, Page {page}: {e.reason}")
             break
 
-# Save the master dataset
+    print(f"[SUCCESS] Finished {pac_id}. Total records captured: {pac_total}")
+
 with open('fec_data.json', 'w') as f:
     json.dump(all_results, f)
 
-print(f"Extraction complete! Saved {len(all_results)} total records.")
+print(f"--- Pipeline Complete. Total aggregate records: {len(all_results)} ---")
