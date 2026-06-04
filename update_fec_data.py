@@ -18,6 +18,8 @@ if not API_KEY:
     log("ERROR: API Key missing!")
     sys.exit(1)
 
+print(f"DEBUG: API Key present: {bool(os.environ.get('FEC_API_KEY'))}", flush=True)
+
 BASE_URL = 'https://api.open.fec.gov/v1'
 PAC_IDS = ['C00797670', 'C00799031', 'C00441949', 'C00710848', 'C00345132', 'C00697219', 'C00278143']
 
