@@ -11,7 +11,7 @@ if not API_KEY:
     exit(1)
 
 BASE_URL = 'https://api.open.fec.gov/v1'
-PAC_IDS = ['C00797670', 'C00799031', 'C00441949', 'C00710848', 'C00345132', 'C00697219', 'C00278143']
+PAC_IDS = ['C00797670', 'C00799031'] #, 'C00441949', 'C00710848', 'C00345132', 'C00697219', 'C00278143']
 
 all_results = []
 
@@ -25,7 +25,7 @@ for pac_id in PAC_IDS:
         req = urllib.request.Request(url)
         
         try:
-            with urllib.request.urlopen(req) as response:
+            with urllib.request.urlopen(req, timeout=15) as response:                
                 data = json.loads(response.read())
                 records = data.get('results', [])
                 
