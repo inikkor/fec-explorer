@@ -23,6 +23,8 @@ jobs:
     - name: Run FEC Extraction Script
       env:
         FEC_API_KEY: ${{ secrets.FEC_API_KEY }}
+        PYTHONUNBUFFERED: "1"  # <--- THIS IS THE KEY
+
       run: python update_fec_data.py
 
     - name: Commit and Push Updated Data
