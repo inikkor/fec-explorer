@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEC PAC Contributions Explorer</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent-color: #2563eb;
+            --error-color: #ef4444;
+            --success-color: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--text-main);
+        }
+
+        .description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+
+        .controls {
+            background: var(--surface-color);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            background-color: white;
+            box-sizing: border-box;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 6px;
+            background: #e2e8f0;
+            outline: none;
+            border: none;
+            -webkit-appearance: none;
+            margin-top: 10px;
+            border-radius: 3px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+        }
+
+        button {
+            padding: 11px 24px;
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+            height: 42px;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #1d4ed8;
+        }
+
+        button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        #status {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: none;
+        }
+
+        #status.active {
+            display: block;
+        }
+
+        #status.loading { background-color: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; }
+        #status.error { background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        #status.success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+        .table-container {
+            background: var(--surface-color);
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .amount-cell {
+            font-family: monospace;
+            font-size: 1.05rem;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        /* Party Color Coding */
+        .party-dem { color: #1d4ed8; } /* Blue */
+        .party-rep { color: #b91c1c; } /* Red */
+        .party-ind { color: #047857; } /* Green */
+        .party-lib { color: #b45309; } /* Orange */
+        .party-other { color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Campaign Finance Explorer</h1>
+    <p class="description">Securely query public contributions using a high-speed static data pipeline. Data is presented strictly for neutral analysis.</p>
+    
+    <div class="controls">
+        <div class="control-row">
+            <div class="control-group">
+                <label>View Mode</label>
+                <select id="viewMode" onchange="toggleSort()">
+                    <option value="raw">1. Raw Transactions</option>
+                    <option value="aggregate">2. Aggregated Leaderboard</option>
+                    <option value="zero">3. Members with $0 Received</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Political Action Committee (PAC)</label>
+                <select id="committeeId">
+                    <option value="ALL">All Israel PACs & Lobbies (Combined)</option>
+                    <option value="C00797670">AIPAC PAC</option>
+                    <option value="C00799031">United Democracy Project (AIPAC Super PAC)</option>
+                    <option value="C00441949">J Street PAC</option>
+                    <option value="C00710848">Democratic Majority for Israel PAC</option>
+                    <option value="C00345132">Republican Jewish Coalition PAC</option>
+                    <option value="C00697219">Pro-Israel America PAC</option>
+                    <option value="C00278143">NORPAC</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Chamber</label>
+                <select id="chamberSelect">
+                    <option value="">House & Senate</option>
+                    <option value="rep">House of Representatives</option>
+                    <option value="sen">Senate</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Recipient US State</label>
+                <select id="stateSelect">
+                    <option value="">All States</option>
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+        </div>
+
+        <div class="control-row">
+            <div class="control-group">
+                <label>Sort By</label>
+                <select id="sortSelect">
+                    <option value="-disbursement_amount" selected>Amount (Highest to Lowest)</option>
+                    <option value="disbursement_amount">Amount (Lowest to Highest)</option>
+                    <option value="-disbursement_date">Date (Newest to Oldest)</option>
+                    <option value="disbursement_date">Date (Oldest to Newest)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Start Date: <span id="startDisplay" style="color:var(--accent-color);"></span></label>
+                <input type="range" id="startDateSlider">
+            </div>
+            <div class="control-group">
+                <label>End Date: <span id="endDisplay" style="color:var(--accent-color);"></span></label>
+                <input type="range" id="endDateSlider">
+            </div>
+            <button onclick="fetchData()" id="loadBtn">Load Data</button>
+        </div>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="table-container">
+        <table id="resultsTable">
+            <thead id="tableHead">
+                <tr>
+                    <th width="20%">Date</th>
+                    <th width="60%">Recipient</th>
+                    <th width="20%">Amount</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody">
+                <tr>
+                    <td colspan="5" class="empty-state">Select your filters and click "Load Data" to begin.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // BUDGET WIN: API Key and API fetching loops removed! 
+    // Data is now sourced instantly from your automated static GitHub JSON file.
+    
+    const PAC_NAMES = {
+        'C00797670': 'AIPAC PAC',
+        'C00799031': 'UDP (AIPAC Super PAC)',
+        'C00441949': 'J Street PAC',
+        'C00710848': 'DMFI PAC',
+        'C00345132': 'Republican Jewish Coalition',
+        'C00697219': 'Pro-Israel America PAC',
+        'C00278143': 'NORPAC'
+    };
+    
+    // Date Slider Logic (2025-2026 Cycle)
+    const baseDate = new Date('2025-01-01T00:00:00Z');
+    const today = new Date();
+    const totalDays = Math.floor((today - baseDate) / (1000 * 60 * 60 * 24));
+
+    function offsetToDateStr(offset) {
+        const d = new Date(baseDate.getTime() + (offset * 24 * 60 * 60 * 1000));
+        return d.toISOString().split('T')[0];
+    }
+
+    // Helper function to get party initial and CSS color class
+    function getPartyDetails(partyStr) {
+        if (!partyStr) return { initial: '?', className: 'party-other' };
+        const p = partyStr.toUpperCase();
+        if (p.includes('DEMOCRAT')) return { initial: 'D', className: 'party-dem' };
+        if (p.includes('REPUBLICAN')) return { initial: 'R', className: 'party-rep' };
+        if (p.includes('INDEPENDENT')) return { initial: 'I', className: 'party-ind' };
+        if (p.includes('LIBERTARIAN')) return { initial: 'L', className: 'party-lib' };
+        return { initial: p.charAt(0), className: 'party-other' };
+    }
+
+    window.onload = () => {
+        const states = ["AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VA","VT","WA","WI","WV","WY"];
+        const stateSelect = document.getElementById('stateSelect');
+        states.forEach(s => stateSelect.innerHTML += `<option value="${s}">${s}</option>`);
+
+        const startSlider = document.getElementById('startDateSlider');
+        const endSlider = document.getElementById('endDateSlider');
+        const startDisp = document.getElementById('startDisplay');
+        const endDisp = document.getElementById('endDisplay');
+
+        startSlider.min = 0; startSlider.max = totalDays;
+        endSlider.min = 0; endSlider.max = totalDays;
+
+        endSlider.value = totalDays;
+        startSlider.value = Math.max(0, totalDays - 30);
+
+        const updateDisplays = () => {
+            if (parseInt(startSlider.value) > parseInt(endSlider.value)) {
+                startSlider.value = endSlider.value;
+            }
+            startDisp.innerText = offsetToDateStr(startSlider.value);
+            endDisp.innerText = offsetToDateStr(endSlider.value);
+        };
+
+        startSlider.addEventListener('input', updateDisplays);
+        endSlider.addEventListener('input', updateDisplays);
+        updateDisplays();
+    };
+
+    function toggleSort() {
+        const mode = document.getElementById('viewMode').value;
+        const sortSelect = document.getElementById('sortSelect');
+        sortSelect.disabled = (mode !== 'raw');
+    }
+
+    function setStatus(msg, type = 'loading') {
+        const statusEl = document.getElementById('status');
+        statusEl.className = `active ${type}`;
+        statusEl.innerHTML = msg;
+    }
+
+    async function fetchData() {
+        const pacSelection = document.getElementById('committeeId').value.trim();
+        const viewMode = document.getElementById('viewMode').value;
+        const chamberSelection = document.getElementById('chamberSelect').value;
+        const stateSelection = document.getElementById('stateSelect').value;
+        const sortSelection = document.getElementById('sortSelect').value;
+        const startDateStr = offsetToDateStr(document.getElementById('startDateSlider').value);
+        const endDateStr = offsetToDateStr(document.getElementById('endDateSlider').value);
+        
+        const thead = document.getElementById('tableHead');
+        const body = document.getElementById('resultsBody');
+        const btn = document.getElementById('loadBtn');
+        
+        body.innerHTML = '';
+        btn.disabled = true;
+        btn.innerText = 'Loading...';
+
+        try {
+            // --- 1. DOWNLOAD CONGRESSIONAL ROSTER ---
+            let legislators = [];
+            let aggregates = {};
+            let allowedFecIds = new Set();
+            let idToNameMap = {};
+            
+            setStatus('Step 1/2: Preparing official Congressional roster...', 'loading');
+            
+            if (!window.legislatorsCache) {
+                const legRes = await fetch('https://unitedstates.github.io/congress-legislators/legislators-current.json');
+                if (!legRes.ok) throw new Error(`GitHub Roster Error: ${legRes.status}`);
+                window.legislatorsCache = await legRes.json();
+            }
+            legislators = window.legislatorsCache;
+            
+            legislators.forEach(leg => {
+                const currentTerm = leg.terms[leg.terms.length - 1];
+                const name = leg.name.official_full || `${leg.name.first} ${leg.name.last}`;
+                const type = currentTerm.type === 'sen' ? 'Senate' : 'House';
+                const state = currentTerm.state;
+                const party = currentTerm.party;
+                
+                if (leg.id.fec) {
+                    leg.id.fec.forEach(id => {
+                        idToNameMap[id] = { name, type, state, party };
+                    });
+                }
+
+                let passesFilters = true;
+                if (stateSelection && state !== stateSelection) passesFilters = false;
+                if (chamberSelection && currentTerm.type !== chamberSelection) passesFilters = false;
+
+                if (passesFilters) {
+                    if (leg.id.fec) leg.id.fec.forEach(id => allowedFecIds.add(id));
+                    
+                    aggregates[leg.id.bioguide] = {
+                        name: name,
+                        last_name: leg.name.last.toUpperCase(),
+                        state: state,
+                        party: currentTerm.party,
+                        type: type,
+                        fec_ids: leg.id.fec || [],
+                        total: 0
+                    };
+                }
+            });
+            
+            if (allowedFecIds.size === 0 && (chamberSelection || stateSelection)) {
+                setStatus('No current politicians match your exact State + Chamber combination.', 'error');
+                body.innerHTML = '<tr><td colspan="5" class="empty-state">Invalid filter combination. Try clearing your filters.</td></tr>';
+                btn.disabled = false;
+                btn.innerText = 'Load Contributions';
+                return;
+            }
+
+            // --- 2. FETCH STATIC JSON DATA (Lightning Fast) ---
+            setStatus('Step 2/2: Querying your local high-speed database...', 'loading');
+            
+            if (!window.fecDataCache) {
+                const res = await fetch('fec_data.json');
+                if (!res.ok) throw new Error(`Database missing! The GitHub Action must run at least once to create fec_data.json. Error: ${res.status}`);
+                window.fecDataCache = await res.json();
+            }
+
+            // Apply all filters IN MEMORY
+            let allResults = window.fecDataCache.filter(r => {
+                if (pacSelection !== 'ALL' && r.committee_id !== pacSelection) return false;
+                
+                if (!r.disbursement_date) return false;
+                const rDate = r.disbursement_date.substring(0, 10);
+                if (rDate < startDateStr || rDate > endDateStr) return false;
+                
+                if ((chamberSelection || stateSelection) && viewMode === 'raw') {
+                    const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
+                    if (!targetIds.some(id => allowedFecIds.has(id))) return false;
+                }
+                
+                return true;
+            });
+
+            // Sort the raw results in memory
+            if (viewMode === 'raw') {
+                allResults.sort((a, b) => {
+                    if (sortSelection === '-disbursement_amount') return (b.disbursement_amount || 0) - (a.disbursement_amount || 0);
+                    if (sortSelection === 'disbursement_amount') return (a.disbursement_amount || 0) - (b.disbursement_amount || 0);
+                    if (sortSelection === '-disbursement_date') return new Date(b.disbursement_date) - new Date(a.disbursement_date);
+                    if (sortSelection === 'disbursement_date') return new Date(a.disbursement_date) - new Date(b.disbursement_date);
+                    return 0;
+                });
+                allResults = allResults.slice(0, 100); // UI cap
+            }
+
+            // --- 3. PROCESS AND RENDER ---
+            if (allResults.length === 0 && viewMode === 'raw') {
+                setStatus('No records found for these exact filters.', 'error');
+                body.innerHTML = '<tr><td colspan="5" class="empty-state">No disbursements found. Try widening your date range slider.</td></tr>';
+                btn.disabled = false;
+                btn.innerText = 'Load Contributions';
+                return;
+            }
+
+            if (viewMode === 'raw') {
+                thead.innerHTML = `<tr><th width="10%">Date</th><th width="20%">Origin PAC</th><th width="30%">Recipient Committee</th><th width="25%">Congressperson</th><th width="15%">Amount</th></tr>`;
+                setStatus(`Successfully retrieved records from your high-speed database.`, 'success');
+                
+                allResults.forEach(r => {
+                    const dateRaw = r.disbursement_date;
+                    const formattedDate = dateRaw ? dateRaw.substring(0, 10) : 'Date Unknown';
+                    const amountRaw = r.disbursement_amount || 0;
+                    const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amountRaw);
+                    const recipient = r.recipient_name || r.recipient_committee_name || 'Recipient Unknown';
+                    
+                    const originPacId = r.committee_id;
+                    const originPacName = PAC_NAMES[originPacId] || originPacId || 'Unknown PAC';
+
+                    const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
+                    let congressperson = 'Unidentified / Multi-Candidate';
+                    let cpDetails = '';
+                    let matchType = '';
+                    let pClass = '';
+                    let pInit = '';
+
+                    for (let id of targetIds) {
+                        if (idToNameMap[id]) {
+                            congressperson = idToNameMap[id].name;
+                            cpDetails = `${idToNameMap[id].state} - ${idToNameMap[id].type}`;
+                            matchType = 'exact';
+                            const pDetails = getPartyDetails(idToNameMap[id].party);
+                            pClass = pDetails.className;
+                            pInit = `(${pDetails.initial})`;
+                            break;
+                        }
+                    }
+                    
+                    if (congressperson === 'Unidentified / Multi-Candidate') {
+                        const recName = recipient.toUpperCase();
+                        const isGeneric = ['PARTY', 'DCCC', 'NRCC', 'DSCC', 'NRSC', 'DNC', 'RNC'].some(k => recName.includes(k));
+                        
+                        if (!isGeneric) {
+                            for (let bioId in aggregates) {
+                                const mem = aggregates[bioId];
+                                const regex = new RegExp(`\\b${mem.last_name}\\b`);
+                                if (regex.test(recName)) {
+                                    congressperson = mem.name;
+                                    cpDetails = `${mem.state} - ${mem.type}`;
+                                    matchType = 'fuzzy';
+                                    const pDetails = getPartyDetails(mem.party);
+                                    pClass = pDetails.className;
+                                    pInit = `(${pDetails.initial})`;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    const cpDisplay = congressperson !== 'Unidentified / Multi-Candidate' 
+                        ? `<strong class="${pClass}">${congressperson} ${pInit}</strong> ${matchType === 'fuzzy' ? '<span style="color:#eab308; font-size:0.8em; margin-left:4px;">(Auto)</span>' : ''}<br><small style="color:var(--text-muted)">${cpDetails}</small>` 
+                        : `<span style="color:var(--text-muted)"><em>${congressperson}</em></span>`;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${formattedDate}</td><td><span style="font-size:0.9em; color:var(--accent-color); font-weight:500;">${originPacName}</span></td><td><strong>${recipient}</strong></td><td>${cpDisplay}</td><td class="amount-cell">${formattedAmount}</td>`;
+                    body.appendChild(row);
+                });
+
+            } else {
+                allResults.forEach(r => {
+                    const amount = r.disbursement_amount || 0;
+                    const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
+                    const recName = (r.recipient_name || r.recipient_committee_name || '').toUpperCase();
+                    let matched = false;
+                    
+                    for (let bioId in aggregates) {
+                        const member = aggregates[bioId];
+                        if (targetIds.some(id => member.fec_ids.includes(id))) {
+                            member.total += amount;
+                            matched = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!matched) {
+                        const isGeneric = ['PARTY', 'DCCC', 'NRCC', 'DSCC', 'NRSC', 'DNC', 'RNC'].some(k => recName.includes(k));
+                        if (!isGeneric) {
+                            for (let bioId in aggregates) {
+                                const member = aggregates[bioId];
+                                const regex = new RegExp(`\\b${member.last_name}\\b`);
+                                if (regex.test(recName)) {
+                                    member.total += amount;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });
+
+                let finalResults = Object.values(aggregates);
+                
+                if (viewMode === 'zero') {
+                    finalResults = finalResults.filter(r => r.total === 0);
+                    finalResults.sort((a, b) => a.name.localeCompare(b.name));
+                    setStatus(`Found ${finalResults.length} current members with <strong>$0</strong> recorded in your database for this period.`, 'success');
+                } else {
+                    finalResults = finalResults.filter(r => r.total > 0);
+                    finalResults.sort((a, b) => b.total - a.total);
+                    setStatus(`Aggregated donations for ${finalResults.length} members instantly.`, 'success');
+                }
+
+                thead.innerHTML = `<tr><th width="50%">Legislator</th><th width="25%">State / Party</th><th width="25%">Total Received</th></tr>`;
+                
+                if (finalResults.length === 0) {
+                     body.innerHTML = '<tr><td colspan="3" class="empty-state">No members matched this criteria.</td></tr>';
+                } else {
+                    finalResults.forEach(r => {
+                        const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(r.total);
+                        const pDetails = getPartyDetails(r.party);
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><strong class="${pDetails.className}">${r.name} (${pDetails.initial})</strong><br><small style="color:var(--text-muted)">${r.type}</small></td>
+                            <td>${r.state} - ${r.party}</td>
+                            <td class="amount-cell" style="color: ${r.total === 0 ? 'var(--text-muted)' : 'inherit'}">${formattedAmount}</td>
+                        `;
+                        body.appendChild(row);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            setStatus(`<strong>Error:</strong> ${error.message}`, 'error');
+            body.innerHTML = '<tr><td colspan="5" class="empty-state">System Error. Check the red box above.</td></tr>';
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Load Contributions';
+        }
+    }
+</script>
+
+</body>
+</html>
