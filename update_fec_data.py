@@ -4,6 +4,8 @@ import time
 import urllib.request
 import urllib.error
 import sys
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 # Force all output to show immediately
 def log(msg):
