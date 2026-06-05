@@ -10,15 +10,14 @@ sys.stdout.reconfigure(line_buffering=True)
 ssl._create_default_https_context = ssl._create_unverified_context
 
 def get_rosters():
-    # Correct direct link to the raw JSON file
-    url = "https://raw.githubusercontent.com/unitedstates/congress-legislators/main/data/legislators-current.json"
+    # The correct URL pointing to the 'gh-pages' branch where the compiled data lives
+    url = "https://raw.githubusercontent.com/unitedstates/congress-legislators/gh-pages/legislators-current.json"
     
-    # Browser-like headers to bypass bot blocks
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
     
-    print("Fetching roster from GitHub raw content...", flush=True)
+    print("Fetching roster from the gh-pages branch...", flush=True)
     
     try:
         req = urllib.request.Request(url, headers=headers)
