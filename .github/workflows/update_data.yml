@@ -45,7 +45,5 @@ jobs:
           git config user.email "github-actions@github.com"
           git add .
           git commit -m "Data update" || echo "No changes to commit"
-          # Pull latest changes from main. If there is a conflict on fec_data.json,
-          # the '-X ours' flag tells Git to strictly use the Action's newly generated file.
-          git pull origin main --no-rebase -X ours
+          git pull origin main -X ours
           git push
