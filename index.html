@@ -6,8 +6,8 @@
     <title>FEC PAC Contributions Explorer</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        :root { --bg-color: #f8fafc; --surface-color: #ffffff; --border-color: #e2e8f0; --text-main: #1e293b; --text-muted: #64748b; --accent-color: #2563eb; --error-color: #ef4444; }
-        body { font-family: sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 20px; margin: 0; }
+        :root { --bg-color: #f8fafc; --surface-color: #ffffff; --border-color: #e2e8f0; --text-main: #1e293b; --accent-color: #2563eb; }
+        body { font-family: sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         .controls { background: var(--surface-color); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 20px; }
         .control-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -15,8 +15,6 @@
         select, button { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); }
         button { background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; }
         #status { padding: 10px; margin-bottom: 10px; border-radius: 6px; display: none; }
-        .viz-container { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; justify-content: center; }
-        .chamber-viz { flex: 1; min-width: 450px; background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); text-align: center; }
         .table-container { background: white; border-radius: 10px; border: 1px solid var(--border-color); overflow: auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
@@ -31,26 +29,7 @@
         <div class="control-row">
             <div class="control-group">
                 <label>View Mode</label>
-                <select id="viewMode">
-                    <option value="raw">1. Raw Transactions</option>
-                    <option value="aggregate" selected>2. Aggregated Leaderboard</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>PAC</label>
-                <select id="committeeId">
-                    <option value="ALL">All Israel PACs</option>
-                    <option value="C00797670">AIPAC PAC</option>
-                    <option value="C00799031">UDP</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>Chamber</label>
-                <select id="chamberSelect">
-                    <option value="">All</option>
-                    <option value="House">House</option>
-                    <option value="Senate">Senate</option>
-                </select>
+                <select id="viewMode"><option value="raw">1. Raw Transactions</option></select>
             </div>
             <div class="control-group">
                 <label>State</label>
@@ -61,11 +40,6 @@
     </div>
 
     <div id="status"></div>
-    <div class="viz-container" id="vizContainer">
-        <div class="chamber-viz"><h2>House</h2><div id="houseChart"></div></div>
-        <div class="chamber-viz"><h2>Senate</h2><div id="senateChart"></div></div>
-    </div>
-
     <div class="table-container">
         <table id="resultsTable"><tbody id="resultsBody"></tbody></table>
     </div>
@@ -77,7 +51,6 @@
         status.style.display = 'block'; status.innerText = 'Loading data...';
         
         try {
-            // Force fetch fresh data
             const [legRes, fecRes] = await Promise.all([
                 fetch('https://unitedstates.github.io/congress-legislators/legislators-current.json'),
                 fetch('fec_data.json?t=' + Date.now())
@@ -86,36 +59,39 @@
             const legislators = await legRes.json();
             const transactions = await fecRes.json();
             
-            // Build ID map
             const idMap = {};
             legislators.forEach(leg => {
-                const info = { name: leg.name.official_full, type: leg.terms.slice(-1)[0].type === 'sen' ? 'Senate' : 'House', state: leg.terms.slice(-1)[0].state, party: leg.terms.slice(-1)[0].party };
-                (leg.id.fec || []).forEach(fecId => idMap[fecId] = info);
+                (leg.id.fec || []).forEach(fecId => {
+                    idMap[fecId] = { 
+                        state: leg.terms.slice(-1)[0].state 
+                    };
+                });
             });
 
-            // Process data
-            const viewMode = document.getElementById('viewMode').value;
             const stateFilter = document.getElementById('stateSelect').value;
-            const chamberFilter = document.getElementById('chamberSelect').value;
             
-            if (viewMode === 'raw') {
-                const results = transactions.filter(t => {
-                    if (stateFilter && idMap[t.candidate_id]?.state !== stateFilter) return false;
-                    return true;
-                });
+            // Debugging the filtering logic
+            const results = transactions.filter(t => {
+                if (!stateFilter) return true; // Show all if "All States"
+                const candidateState = idMap[t.candidate_id]?.state;
+                return candidateState === stateFilter;
+            });
+            
+            const body = document.getElementById('resultsBody');
+            body.innerHTML = results.map(r => `
+                <tr>
+                    <td>${r.disbursement_date}</td>
+                    <td>${r.recipient_name}</td>
+                    <td>$${parseFloat(r.disbursement_amount).toLocaleString()}</td>
+                </tr>`).join('');
                 
-                const body = document.getElementById('resultsBody');
-                body.innerHTML = results.map(r => `<tr><td>${r.disbursement_date}</td><td>${r.recipient_name}</td><td>${r.disbursement_amount}</td></tr>`).join('');
-                status.innerText = `Found ${results.length} transactions.`;
-            } else {
-                status.innerText = `Aggregated ${transactions.length} records.`;
-            }
+            status.innerText = `Displaying ${results.length} transactions. (State Filter: ${stateFilter || 'None'})`;
         } catch (e) {
             status.innerText = 'Error: ' + e.message;
+            console.error(e);
         }
     }
 
-    // Populate states
     const states = ["AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VA","VT","WA","WI","WV","WY"];
     const s = document.getElementById('stateSelect');
     states.forEach(st => s.innerHTML += `<option value="${st}">${st}</option>`);
