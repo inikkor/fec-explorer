@@ -26,7 +26,6 @@
 
 <div class="container">
     <h1>Campaign Finance Explorer</h1>
-    
     <div class="controls">
         <div class="control-row">
             <div class="control-group">
@@ -83,12 +82,8 @@
             const stateFilter = document.getElementById('stateSelect').value;
             const viewMode = document.getElementById('viewMode').value;
             
-            const filtered = transactions.filter(t => {
-                if (!stateFilter) return true;
-                return idMap[t.candidate_id]?.state === stateFilter;
-            });
+            const filtered = transactions.filter(t => !stateFilter || idMap[t.candidate_id]?.state === stateFilter);
 
-            // Update UI
             document.getElementById('vizContainer').style.display = viewMode === 'aggregate' ? 'flex' : 'none';
             const body = document.getElementById('resultsBody');
             
@@ -96,18 +91,43 @@
                 body.innerHTML = filtered.map(r => `<tr><td>${r.disbursement_date}</td><td>${r.recipient_name}</td><td>$${parseFloat(r.disbursement_amount).toLocaleString()}</td></tr>`).join('');
                 status.innerText = `Displaying ${filtered.length} transactions.`;
             } else {
-                status.innerText = `Aggregated data for ${filtered.length} records. (Visualization Active)`;
-                renderParliament(filtered, idMap);
+                status.innerText = `Aggregated ${filtered.length} records. Rendering visualization...`;
+                renderCharts(filtered, idMap);
             }
         } catch (e) {
             status.innerText = 'Error: ' + e.message;
         }
     }
 
-    function renderParliament(data, idMap) {
-        // Basic placeholder for Parliament chart rendering logic
-        document.getElementById('houseChart').innerHTML = "Parliament visualization logic would go here.";
-        document.getElementById('senateChart').innerHTML = "Parliament visualization logic would go here.";
+    function renderCharts(data, idMap) {
+        const houseData = [], senateData = [];
+        const seen = new Set();
+        
+        data.forEach(t => {
+            const info = idMap[t.candidate_id];
+            if (info && !seen.has(t.candidate_id)) {
+                seen.add(t.candidate_id);
+                if (info.type === 'sen') senateData.push(info); else houseData.push(info);
+            }
+        });
+
+        drawParliament("#houseChart", houseData, 450, 250);
+        drawParliament("#senateChart", senateData, 450, 250);
+    }
+
+    function drawParliament(containerId, data, width, height) {
+        const svg = d3.select(containerId).html("").append("svg")
+            .attr("viewBox", `0 0 ${width} ${height}`)
+            .style("width", "100%");
+            
+        svg.selectAll("circle")
+            .data(data)
+            .enter().append("circle")
+            .attr("cx", (d, i) => (i * 20) % width)
+            .attr("cy", (d, i) => Math.floor(i * 20 / width) * 20 + 50)
+            .attr("r", 8)
+            .attr("fill", "#2563eb")
+            .append("title").text(d => d.name);
     }
 
     const states = ["AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VA","VT","WA","WI","WV","WY"];
