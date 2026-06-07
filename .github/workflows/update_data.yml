@@ -32,6 +32,9 @@ jobs:
       # Runs if scheduled OR if you checked the "Update Roster" box
       - name: Fetch Current Roster
         if: github.event_name == 'schedule' || inputs.run_roster == true
+        env:
+          FEC_API_KEY: ${{ secrets.FEC_API_KEY }}
+          PYTHONUNBUFFERED: "1"
         run: python get_rosters.py
 
       # Runs if scheduled OR if you checked the "Update FEC" box
