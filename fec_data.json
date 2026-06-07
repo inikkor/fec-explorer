@@ -2203,10 +2203,12 @@
     "transaction_id": "E0BD8BE7068064CC9B7B",
     "committee_id": "C00799031",
     "disbursement_amount": 7475.0,
-    "disbursement_date": "2026-06-05",
+    "disbursement_date": "2026-06-05T00:00:00",
     "recipient_name": "SKDKNICKERBOCKER LLC (IE: SUPPORTING BOAFO, ADRIAN)",
     "candidate_id": "H6MD05321",
-    "record_type": "Super PAC Ad/Mailer"
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   },
   {
     "transaction_id": "EC39BC4F50C5E46B3ACA",
