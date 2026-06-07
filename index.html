@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FEC PAC Contributions Explorer</title>
+    <!-- Load D3.js for the visual charts -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         :root {
@@ -195,6 +196,7 @@
 
     <div id="status"></div>
 
+    <!-- The SVG Visualizations -->
     <div class="viz-container" id="vizContainer" style="display:none;">
         <div class="chamber-viz">
             <h2>House of Representatives</h2>
@@ -206,15 +208,18 @@
         </div>
     </div>
 
+    <!-- The Tooltip -->
     <div id="tooltip" class="tooltip"></div>
 
     <div class="table-container">
         <table id="resultsTable">
             <thead id="tableHead">
                 <tr>
-                    <th width="20%">Date</th>
-                    <th width="60%">Recipient</th>
-                    <th width="20%">Amount</th>
+                    <th width="10%">Date</th>
+                    <th width="15%">Origin PAC</th>
+                    <th width="35%">Recipient / Target</th>
+                    <th width="15%">Type</th>
+                    <th width="25%">Amount</th>
                 </tr>
             </thead>
             <tbody id="resultsBody">
@@ -234,6 +239,7 @@
         'C00278143': 'NORPAC'
     };
     
+    // Cycle starts Jan 1, 2025
     const baseDate = new Date('2025-01-01T00:00:00Z');
     const today = new Date();
     const totalDays = Math.floor((today - baseDate) / (1000 * 60 * 60 * 24));
@@ -267,7 +273,10 @@
 
         startSlider.min = 0; startSlider.max = totalDays;
         endSlider.min = 0; endSlider.max = totalDays;
-        endSlider.value = totalDays; startSlider.value = Math.max(0, totalDays - 30);
+        
+        // Defaults to entire cycle
+        endSlider.value = totalDays; 
+        startSlider.value = 0;
 
         const updateDisplays = () => {
             if (parseInt(startSlider.value) > parseInt(endSlider.value)) startSlider.value = endSlider.value;
@@ -315,18 +324,17 @@
         const width = 450, height = 250;
         const svg = container.append("svg").attr("viewBox", `0 0 ${width} ${height}`).attr("width", "100%").attr("height", "100%");
         
-        // Sorting: Democrats Left (π), Independents Center, Republicans Right (0)
-
-       const partySortWeight = { 'Democrat': 1, 'Independent': 2, 'Republican': 3 };
+        // Sorting: Democrats Left, Independents Center, Republicans Right
+        const partySortWeight = { 'Democrat': 1, 'Independent': 2, 'Republican': 3 };
         membersData.sort((a, b) => {
             let pA = partySortWeight[a.party] || 4;
             let pB = partySortWeight[b.party] || 4;
             if (pA !== pB) return pA - pB;
             
-            // Democrats (Left side): Highest earners stay on the far-left edge
+            // Dems: Highest earners on the far-left edge
             if (pA === 1) return b.total - a.total;
             
-            // Republicans (Right side): Reverse it so highest earners go to the far-right edge
+            // Reps: Reversed so highest earners are on the far-right edge
             if (pA === 3) return a.total - b.total;
             
             return b.total - a.total;
@@ -435,7 +443,7 @@
                     leg.id.fec.forEach(id => idToNameMap[id] = { name, type, state: currentTerm.state, party: currentTerm.party });
                 }
 
-                // Build aggregate map for ALL members to draw the full charts
+                // Build aggregate map
                 aggregates[leg.id.bioguide] = {
                     name: name, last_name: leg.name.last.toUpperCase(),
                     state: currentTerm.state, party: currentTerm.party, type: type,
@@ -443,15 +451,15 @@
                 };
             });
             
-            // --- 2. FETCH FEC DATA ---
+            // --- 2. FETCH FEC DATA (With Cache Buster) ---
             if (!window.fecDataCache) {
-                const res = await fetch('fec_data.json');
+                // THE FIX: Appending a timestamp forces the browser to ignore the broken cached file!
+                const res = await fetch('fec_data.json?nocache=' + new Date().getTime());
                 if (!res.ok) throw new Error(`Database missing! Run Python script first.`);
-                const rawText = await res.text();
-                window.fecDataCache = rawText.trim().split("\n").filter(l => l.length > 0).map(l => JSON.parse(l));
+                window.fecDataCache = await res.json();
             }
 
-            // --- 3. CALCULATE TOTALS (Apply Date/PAC filters to build the charts) ---
+            // --- 3. CALCULATE TOTALS ---
             window.fecDataCache.forEach(r => {
                 if (pacSelection !== 'ALL' && r.committee_id !== pacSelection) return;
                 if (!r.disbursement_date) return;
@@ -488,7 +496,6 @@
             drawParliamentChart("#senateChart", allMembers.filter(m => m.type === 'Senate'), false);
 
             // --- 5. APPLY STRICT VIEW FILTERS FOR THE TABLE ---
-            // If Zoomed via click, force ID filter
             let allowedFecIds = new Set();
             if (window.zoomedFecIds) {
                 window.zoomedFecIds.forEach(id => allowedFecIds.add(id));
@@ -508,7 +515,6 @@
                     const rDate = r.disbursement_date.substring(0, 10);
                     if (rDate < startDateStr || rDate > endDateStr) return false;
 
-                    // Unified strict + fuzzy filter logic we discussed earlier
                     const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
                     let hasIdMatch = targetIds.some(id => allowedFecIds.has(id));
                     
@@ -519,7 +525,6 @@
                         if (!isGeneric) {
                             for (let bioId in aggregates) {
                                 if (recName.includes(aggregates[bioId].last_name)) {
-                                    // Make sure this fuzzy match actually belongs to the filtered subset (State/Chamber)
                                     if (allowedFecIds.has(aggregates[bioId].fec_ids[0])) { fuzzyMatch = true; break; }
                                 }
                             }
@@ -536,9 +541,9 @@
                     if (sortSelection === 'disbursement_date') return new Date(a.disbursement_date) - new Date(b.disbursement_date);
                     return 0;
                 });
-                tableResults = tableResults.slice(0, 150); // Prevent browser lag
+                tableResults = tableResults.slice(0, 150);
 
-                thead.innerHTML = `<tr><th width="10%">Date</th><th width="20%">Origin PAC</th><th width="30%">Recipient Committee</th><th width="25%">Congressperson</th><th width="15%">Amount</th></tr>`;
+                thead.innerHTML = `<tr><th width="10%">Date</th><th width="15%">Origin PAC</th><th width="35%">Recipient / Target</th><th width="15%">Type</th><th width="25%">Amount</th></tr>`;
                 
                 if (tableResults.length === 0) {
                     body.innerHTML = '<tr><td colspan="5" class="empty-state">No records found.</td></tr>';
@@ -547,7 +552,11 @@
                         const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(r.disbursement_amount || 0);
                         const pacName = PAC_NAMES[r.committee_id] || r.committee_id;
                         const row = document.createElement('tr');
-                        row.innerHTML = `<td>${r.disbursement_date.substring(0,10)}</td><td><span style="color:var(--accent-color); font-weight:500;">${pacName}</span></td><td><strong>${r.recipient_name || r.recipient_committee_name}</strong></td><td>Match Applied</td><td class="amount-cell">${formattedAmount}</td>`;
+                        
+                        const recName = r.recipient_name || r.recipient_committee_name || 'Unknown';
+                        const recType = r.record_type || 'Direct';
+                        
+                        row.innerHTML = `<td>${r.disbursement_date.substring(0,10)}</td><td><span style="color:var(--accent-color); font-weight:500;">${pacName}</span></td><td><strong>${recName}</strong></td><td><span style="font-size:0.85em; background:#e2e8f0; padding:2px 6px; border-radius:4px;">${recType}</span></td><td class="amount-cell">${formattedAmount}</td>`;
                         body.appendChild(row);
                     });
                 }
@@ -591,3 +600,4 @@
 </script>
 </body>
 </html>
+
