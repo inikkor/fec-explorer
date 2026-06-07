@@ -451,6 +451,7 @@
             }
 
             // Apply all filters IN MEMORY
+            // Apply all filters IN MEMORY
             let allResults = window.fecDataCache.filter(r => {
                 if (pacSelection !== 'ALL' && r.committee_id !== pacSelection) return false;
                 
@@ -458,9 +459,30 @@
                 const rDate = r.disbursement_date.substring(0, 10);
                 if (rDate < startDateStr || rDate > endDateStr) return false;
                 
-                if ((chamberSelection || stateSelection) && viewMode === 'raw') {
+                // UNIFIED FILTER: Applies to BOTH Raw and Aggregate views
+                if (chamberSelection || stateSelection) {
                     const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
-                    if (!targetIds.some(id => allowedFecIds.has(id))) return false;
+                    let hasIdMatch = targetIds.some(id => allowedFecIds.has(id));
+                    
+                    // If no strict ID match, attempt a fuzzy match before throwing it away
+                    if (!hasIdMatch) {
+                        const recName = (r.recipient_name || r.recipient_committee_name || '').toUpperCase();
+                        const isGeneric = ['PARTY', 'DCCC', 'NRCC', 'DSCC', 'NRSC', 'DNC', 'RNC'].some(k => recName.includes(k));
+                        let fuzzyMatch = false;
+
+                        if (!isGeneric) {
+                            for (let bioId in aggregates) {
+                                const member = aggregates[bioId];
+                                // Using the safer .includes() instead of Regex as discussed earlier
+                                if (recName.includes(member.last_name)) {
+                                    fuzzyMatch = true;
+                                    break;
+                                }
+                            }
+                        }
+                        // If it fails BOTH the ID check and the Fuzzy check, drop it.
+                        if (!fuzzyMatch) return false;
+                    }
                 }
                 
                 return true;
