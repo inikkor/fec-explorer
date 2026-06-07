@@ -316,12 +316,20 @@
         const svg = container.append("svg").attr("viewBox", `0 0 ${width} ${height}`).attr("width", "100%").attr("height", "100%");
         
         // Sorting: Democrats Left (π), Independents Center, Republicans Right (0)
-        const partySortWeight = { 'Democrat': 1, 'Independent': 2, 'Republican': 3 };
+
+       const partySortWeight = { 'Democrat': 1, 'Independent': 2, 'Republican': 3 };
         membersData.sort((a, b) => {
             let pA = partySortWeight[a.party] || 4;
             let pB = partySortWeight[b.party] || 4;
             if (pA !== pB) return pA - pB;
-            return b.total - a.total; // Sort biggest earners to the front within party
+            
+            // Democrats (Left side): Highest earners stay on the far-left edge
+            if (pA === 1) return b.total - a.total;
+            
+            // Republicans (Right side): Reverse it so highest earners go to the far-right edge
+            if (pA === 3) return a.total - b.total;
+            
+            return b.total - a.total;
         });
 
         // Generate Math for Concentric Arcs
