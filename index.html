@@ -439,8 +439,15 @@
             
             if (!window.fecDataCache) {
                 const res = await fetch('fec_data.json');
-                if (!res.ok) throw new Error(`Database missing! The GitHub Action must run at least once to create fec_data.json. Error: ${res.status}`);
-                window.fecDataCache = await res.json();
+                if (!res.ok) throw new Error(`Database missing! ... Error: ${res.status}`);
+                
+                // Read as plain text first, then split by line, then parse each line
+                const rawText = await res.text();
+                window.fecDataCache = rawText
+                    .trim()
+                    .split("\n")
+                    .filter(line => line.length > 0) // Prevents crashes on blank lines at the end of the file
+                    .map(line => JSON.parse(line));
             }
 
             // Apply all filters IN MEMORY
