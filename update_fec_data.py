@@ -47,7 +47,9 @@ def fetch_pac_data(session, api_key, committee_id, min_date=None):
         "api_key": api_key,
         "committee_id": committee_id,
         "per_page": 100,
-        "page": page
+        "page": page,
+        "two_year_transaction_period": 2026  # <--- ADD THIS LINE
+
     }
 
     if min_date:
