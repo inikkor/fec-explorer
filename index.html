@@ -4,135 +4,599 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FEC PAC Contributions Explorer</title>
+    <!-- Load D3.js for the visual charts -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        :root { --bg-color: #f8fafc; --surface-color: #ffffff; --border-color: #e2e8f0; --text-main: #1e293b; --accent-color: #2563eb; }
-        body { font-family: sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 20px; }
+        :root {
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent-color: #2563eb;
+            --error-color: #ef4444;
+            --success-color: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
+            margin: 0;
+        }
+
         .container { max-width: 1200px; margin: 0 auto; }
-        .controls { background: var(--surface-color); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 20px; }
-        .control-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
-        .control-group { flex: 1; min-width: 180px; display: flex; flex-direction: column; }
-        select, button { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); }
-        button { background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; }
-        #status { padding: 10px; margin-bottom: 10px; border-radius: 6px; display: none; background: #fff; }
-        .viz-container { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; justify-content: center; }
-        .chamber-viz { flex: 1; min-width: 450px; background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); text-align: center; }
-        .table-container { background: white; border-radius: 10px; border: 1px solid var(--border-color); overflow: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+        h1 { font-size: 1.8rem; margin-bottom: 5px; color: var(--text-main); }
+        .description { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; }
+
+        .controls {
+            background: var(--surface-color);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .control-row {
+            display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; align-items: flex-end;
+        }
+
+        .control-group {
+            flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-color);
+            border-radius: 6px; font-size: 0.95rem; background-color: white; box-sizing: border-box;
+        }
+
+        input[type="range"] {
+            padding: 0; height: 6px; background: #e2e8f0; outline: none; border: none;
+            -webkit-appearance: none; margin-top: 10px; border-radius: 3px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 16px; height: 16px;
+            border-radius: 50%; background: var(--accent-color); cursor: pointer;
+        }
+
+        button {
+            padding: 11px 24px; background-color: var(--accent-color); color: white;
+            font-weight: 600; font-size: 0.95rem; cursor: pointer; border: none;
+            border-radius: 6px; transition: background-color 0.2s; white-space: nowrap; height: 42px;
+        }
+        button:hover:not(:disabled) { background-color: #1d4ed8; }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        
+        .clear-btn { background-color: var(--error-color); display: none; }
+        .clear-btn:hover { background-color: #b91c1c; }
+
+        #status {
+            padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 500; display: none;
+        }
+        #status.active { display: block; }
+        #status.loading { background-color: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; }
+        #status.error { background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        #status.success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+        /* --- VISUALIZATION STYLES --- */
+        .viz-container {
+            display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; justify-content: center;
+        }
+        .chamber-viz {
+            flex: 1; min-width: 450px; background: var(--surface-color); padding: 20px;
+            border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .chamber-viz h2 { font-size: 1.2rem; margin-top: 0; color: var(--text-main); }
+        
+        .member-dot {
+            cursor: pointer; stroke-width: 1.5px; transition: all 0.2s ease;
+        }
+        .member-dot:hover { stroke: #000; stroke-width: 2.5px; r: 6; }
+        
+        /* Tooltip */
+        .tooltip {
+            position: absolute; text-align: left; padding: 10px 15px; font-size: 0.9rem;
+            background: rgba(15, 23, 42, 0.95); color: white; border-radius: 8px;
+            pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .tooltip strong { font-size: 1.1rem; display: block; margin-bottom: 4px; }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--surface-color); border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color); overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f8fafc; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.85rem; }
+        tbody tr:hover { background-color: #f1f5f9; }
+        .amount-cell { font-family: monospace; font-size: 1.05rem; text-align: right; font-weight: 600; }
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+
+        .party-dem { color: #1d4ed8; } .party-rep { color: #b91c1c; } .party-ind { color: #047857; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Campaign Finance Explorer</h1>
+    <p class="description">Securely query public contributions using a high-speed static data pipeline. Data is presented strictly for neutral analysis.</p>
+    
     <div class="controls">
         <div class="control-row">
             <div class="control-group">
                 <label>View Mode</label>
-                <select id="viewMode">
+                <select id="viewMode" onchange="toggleSort()">
                     <option value="raw">1. Raw Transactions</option>
-                    <option value="aggregate" selected>2. Aggregated Leaderboard</option>
+                    <option value="aggregate">2. Aggregated Leaderboard</option>
+                    <option value="zero">3. Members with $0 Received</option>
                 </select>
             </div>
             <div class="control-group">
-                <label>State</label>
-                <select id="stateSelect"><option value="">All States</option></select>
+                <label>Political Action Committee (PAC)</label>
+                <select id="committeeId">
+                    <option value="ALL">All Israel PACs & Lobbies (Combined)</option>
+                    <option value="C00797670">AIPAC PAC</option>
+                    <option value="C00799031">United Democracy Project (AIPAC Super PAC)</option>
+                    <option value="C00441949">J Street PAC</option>
+                    <option value="C00710848">Democratic Majority for Israel PAC</option>
+                    <option value="C00345132">Republican Jewish Coalition PAC</option>
+                    <option value="C00697219">Pro-Israel America PAC</option>
+                    <option value="C00278143">NORPAC</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Chamber</label>
+                <select id="chamberSelect">
+                    <option value="">House & Senate</option>
+                    <option value="House">House of Representatives</option>
+                    <option value="Senate">Senate</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Recipient US State</label>
+                <select id="stateSelect">
+                    <option value="">All States</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="control-row">
+            <div class="control-group">
+                <label>Sort By</label>
+                <select id="sortSelect">
+                    <option value="-disbursement_amount" selected>Amount (Highest to Lowest)</option>
+                    <option value="disbursement_amount">Amount (Lowest to Highest)</option>
+                    <option value="-disbursement_date">Date (Newest to Oldest)</option>
+                    <option value="disbursement_date">Date (Oldest to Newest)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Start Date: <span id="startDisplay" style="color:var(--accent-color);"></span></label>
+                <input type="range" id="startDateSlider">
+            </div>
+            <div class="control-group">
+                <label>End Date: <span id="endDisplay" style="color:var(--accent-color);"></span></label>
+                <input type="range" id="endDateSlider">
             </div>
             <button onclick="fetchData()" id="loadBtn">Load Data</button>
+            <button onclick="clearZoom()" id="clearZoomBtn" class="clear-btn">Clear Zoom Filter</button>
         </div>
     </div>
 
     <div id="status"></div>
-    <div class="viz-container" id="vizContainer">
-        <div class="chamber-viz"><h2>House</h2><div id="houseChart"></div></div>
-        <div class="chamber-viz"><h2>Senate</h2><div id="senateChart"></div></div>
+
+    <!-- The SVG Visualizations -->
+    <div class="viz-container" id="vizContainer" style="display:none;">
+        <div class="chamber-viz">
+            <h2>House of Representatives</h2>
+            <div id="houseChart"></div>
+        </div>
+        <div class="chamber-viz">
+            <h2>U.S. Senate</h2>
+            <div id="senateChart"></div>
+        </div>
     </div>
 
+    <!-- The Tooltip -->
+    <div id="tooltip" class="tooltip"></div>
+
     <div class="table-container">
-        <table id="resultsTable"><tbody id="resultsBody"></tbody></table>
+        <table id="resultsTable">
+            <thead id="tableHead">
+                <tr>
+                    <th width="10%">Date</th>
+                    <th width="15%">Origin PAC</th>
+                    <th width="35%">Recipient / Target</th>
+                    <th width="15%">Type</th>
+                    <th width="25%">Amount</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody">
+                <tr>
+                    <td colspan="5" class="empty-state">Select your filters and click "Load Data" to begin.</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
 <script>
-    async function fetchData() {
-        const status = document.getElementById('status');
-        status.style.display = 'block'; status.innerText = 'Loading data...';
-        
-        try {
-            const [legRes, fecRes] = await Promise.all([
-                fetch('https://unitedstates.github.io/congress-legislators/legislators-current.json'),
-                fetch('fec_data.json?t=' + Date.now())
-            ]);
-            
-            const legislators = await legRes.json();
-            const transactions = await fecRes.json();
-            
-            const idMap = {};
-            legislators.forEach(leg => {
-                (leg.id.fec || []).forEach(fecId => {
-                    idMap[fecId] = { 
-                        name: leg.name.official_full,
-                        type: leg.terms.slice(-1)[0].type,
-                        state: leg.terms.slice(-1)[0].state 
-                    };
-                });
-            });
+    const PAC_NAMES = {
+        'C00797670': 'AIPAC PAC', 'C00799031': 'UDP (AIPAC Super PAC)',
+        'C00441949': 'J Street PAC', 'C00710848': 'DMFI PAC',
+        'C00345132': 'Republican Jewish Coalition', 'C00697219': 'Pro-Israel America PAC',
+        'C00278143': 'NORPAC'
+    };
+    
+    // Cycle starts Jan 1, 2025
+    const baseDate = new Date('2025-01-01T00:00:00Z');
+    const today = new Date();
+    const totalDays = Math.floor((today - baseDate) / (1000 * 60 * 60 * 24));
 
-            const stateFilter = document.getElementById('stateSelect').value;
-            const viewMode = document.getElementById('viewMode').value;
-            
-            const filtered = transactions.filter(t => !stateFilter || idMap[t.candidate_id]?.state === stateFilter);
+    // Global variable for Click-to-Zoom functionality
+    window.zoomedFecIds = null;
 
-            document.getElementById('vizContainer').style.display = viewMode === 'aggregate' ? 'flex' : 'none';
-            const body = document.getElementById('resultsBody');
-            
-            if (viewMode === 'raw') {
-                body.innerHTML = filtered.map(r => `<tr><td>${r.disbursement_date}</td><td>${r.recipient_name}</td><td>$${parseFloat(r.disbursement_amount).toLocaleString()}</td></tr>`).join('');
-                status.innerText = `Displaying ${filtered.length} transactions.`;
-            } else {
-                status.innerText = `Aggregated ${filtered.length} records. Rendering visualization...`;
-                renderCharts(filtered, idMap);
-            }
-        } catch (e) {
-            status.innerText = 'Error: ' + e.message;
-        }
+    function offsetToDateStr(offset) {
+        const d = new Date(baseDate.getTime() + (offset * 24 * 60 * 60 * 1000));
+        return d.toISOString().split('T')[0];
     }
 
-    function renderCharts(data, idMap) {
-        const houseData = [], senateData = [];
-        const seen = new Set();
+    function getPartyDetails(partyStr) {
+        if (!partyStr) return { initial: '?', className: 'party-other', color: '#64748b', lightColor: '#e2e8f0' };
+        const p = partyStr.toUpperCase();
+        if (p.includes('DEMOCRAT')) return { initial: 'D', className: 'party-dem', color: '#2563eb', lightColor: '#bfdbfe' };
+        if (p.includes('REPUBLICAN')) return { initial: 'R', className: 'party-rep', color: '#dc2626', lightColor: '#fecaca' };
+        if (p.includes('INDEPENDENT')) return { initial: 'I', className: 'party-ind', color: '#059669', lightColor: '#a7f3d0' };
+        return { initial: p.charAt(0), className: 'party-other', color: '#64748b', lightColor: '#e2e8f0' };
+    }
+
+    window.onload = () => {
+        const states = ["AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VA","VT","WA","WI","WV","WY"];
+        const stateSelect = document.getElementById('stateSelect');
+        states.forEach(s => stateSelect.innerHTML += `<option value="${s}">${s}</option>`);
+
+        const startSlider = document.getElementById('startDateSlider');
+        const endSlider = document.getElementById('endDateSlider');
+        const startDisp = document.getElementById('startDisplay');
+        const endDisp = document.getElementById('endDisplay');
+
+        startSlider.min = 0; startSlider.max = totalDays;
+        endSlider.min = 0; endSlider.max = totalDays;
         
-        data.forEach(t => {
-            const info = idMap[t.candidate_id];
-            if (info && !seen.has(t.candidate_id)) {
-                seen.add(t.candidate_id);
-                if (info.type === 'sen') senateData.push(info); else houseData.push(info);
-            }
+        // Defaults to entire cycle
+        endSlider.value = totalDays; 
+        startSlider.value = 0;
+
+        const updateDisplays = () => {
+            if (parseInt(startSlider.value) > parseInt(endSlider.value)) startSlider.value = endSlider.value;
+            startDisp.innerText = offsetToDateStr(startSlider.value);
+            endDisp.innerText = offsetToDateStr(endSlider.value);
+        };
+        startSlider.addEventListener('input', updateDisplays);
+        endSlider.addEventListener('input', updateDisplays);
+        updateDisplays();
+    };
+
+    function toggleSort() {
+        const mode = document.getElementById('viewMode').value;
+        document.getElementById('sortSelect').disabled = (mode !== 'raw');
+    }
+
+    function setStatus(msg, type = 'loading') {
+        const statusEl = document.getElementById('status');
+        statusEl.className = `active ${type}`;
+        statusEl.innerHTML = msg;
+    }
+
+    // Activated when a user clicks a dot on the chart
+    function triggerZoom(fecIds) {
+        window.zoomedFecIds = fecIds;
+        document.getElementById('viewMode').value = 'raw';
+        toggleSort();
+        document.getElementById('clearZoomBtn').style.display = 'inline-block';
+        fetchData();
+        // Scroll down to table
+        document.querySelector('.table-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function clearZoom() {
+        window.zoomedFecIds = null;
+        document.getElementById('clearZoomBtn').style.display = 'none';
+        fetchData();
+    }
+
+    // --- D3 PARLIAMENT CHART ALGORITHM ---
+    function drawParliamentChart(containerId, membersData, isHouse) {
+        const container = d3.select(containerId);
+        container.html(""); // Clear previous
+        
+        const width = 450, height = 250;
+        const svg = container.append("svg").attr("viewBox", `0 0 ${width} ${height}`).attr("width", "100%").attr("height", "100%");
+        
+        // Sorting: Democrats Left, Independents Center, Republicans Right
+        const partySortWeight = { 'Democrat': 1, 'Independent': 2, 'Republican': 3 };
+        membersData.sort((a, b) => {
+            let pA = partySortWeight[a.party] || 4;
+            let pB = partySortWeight[b.party] || 4;
+            if (pA !== pB) return pA - pB;
+            
+            // Dems: Highest earners on the far-left edge
+            if (pA === 1) return b.total - a.total;
+            
+            // Reps: Reversed so highest earners are on the far-right edge
+            if (pA === 3) return a.total - b.total;
+            
+            return b.total - a.total;
         });
 
-        drawParliament("#houseChart", houseData, 450, 250);
-        drawParliament("#senateChart", senateData, 450, 250);
-    }
-
-    function drawParliament(containerId, data, width, height) {
-        const svg = d3.select(containerId).html("").append("svg")
-            .attr("viewBox", `0 0 ${width} ${height}`)
-            .style("width", "100%");
+        // Generate Math for Concentric Arcs
+        const numRows = isHouse ? 9 : 4;
+        const maxRadius = 220;
+        const minRadius = isHouse ? 80 : 100;
+        const center = { x: width / 2, y: height - 10 };
+        
+        let positions = [];
+        let totalCapacity = 0;
+        for(let i=0; i<numRows; i++) totalCapacity += (minRadius + i * (maxRadius - minRadius) / (numRows - 1));
+        
+        let pointsLeft = membersData.length;
+        for(let i=0; i<numRows; i++) {
+            let r = minRadius + i * (maxRadius - minRadius) / (numRows - 1);
+            let pointsInRow = Math.round((r / totalCapacity) * membersData.length);
+            if (i === numRows - 1) pointsInRow = pointsLeft; // Remainder
+            pointsLeft -= pointsInRow;
             
+            let angleStep = Math.PI / (pointsInRow - 1 || 1);
+            for(let j=0; j<pointsInRow; j++) {
+                let angle = Math.PI - (j * angleStep); // From π (left) to 0 (right)
+                positions.push({ x: center.x + r * Math.cos(angle), y: center.y - r * Math.sin(angle), angle: angle });
+            }
+        }
+        
+        // Sort positions to match party sorting (Left to Right)
+        positions.sort((a, b) => b.angle - a.angle);
+        
+        const tooltip = d3.select("#tooltip");
+        const formatMoney = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format;
+
+        // Draw Circles
         svg.selectAll("circle")
-            .data(data)
-            .enter().append("circle")
-            .attr("cx", (d, i) => (i * 20) % width)
-            .attr("cy", (d, i) => Math.floor(i * 20 / width) * 20 + 50)
-            .attr("r", 8)
-            .attr("fill", "#2563eb")
-            .append("title").text(d => d.name);
+            .data(membersData)
+            .enter()
+            .append("circle")
+            .attr("class", "member-dot")
+            .attr("cx", (d, i) => positions[i] ? positions[i].x : center.x)
+            .attr("cy", (d, i) => positions[i] ? positions[i].y : center.y)
+            .attr("r", isHouse ? 4.5 : 6)
+            .attr("fill", d => {
+                const colors = getPartyDetails(d.party);
+                return d.total > 0 ? colors.color : colors.lightColor;
+            })
+            .attr("stroke", d => d.total > 0 ? "#fff" : getPartyDetails(d.party).color)
+            .style("opacity", d => (window.zoomedFecIds && !window.zoomedFecIds.includes(d.fec_ids[0])) ? 0.2 : 1)
+            .on("mouseover", function(event, d) {
+                d3.select(this).style("stroke", "#000").style("stroke-width", "2.5px").attr("r", isHouse ? 6 : 8);
+                const pInfo = getPartyDetails(d.party);
+                tooltip.style("opacity", 1)
+                    .html(`<strong>${d.name} (${pInfo.initial})</strong>
+                           ${d.state} - ${d.type}<br>
+                           <span style="color:#a3e635;">Received: ${formatMoney(d.total)}</span><br>
+                           <em style="font-size:0.8em; color:#94a3b8;">Click to filter records</em>`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(event, d) {
+                d3.select(this)
+                    .style("stroke", d.total > 0 ? "#fff" : getPartyDetails(d.party).color)
+                    .style("stroke-width", "1.5px")
+                    .attr("r", isHouse ? 4.5 : 6);
+                tooltip.style("opacity", 0);
+            })
+            .on("click", function(event, d) {
+                triggerZoom(d.fec_ids);
+            });
     }
 
-    const states = ["AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VA","VT","WA","WI","WV","WY"];
-    const s = document.getElementById('stateSelect');
-    states.forEach(st => s.innerHTML += `<option value="${st}">${st}</option>`);
+    async function fetchData() {
+        const pacSelection = document.getElementById('committeeId').value.trim();
+        const viewMode = document.getElementById('viewMode').value;
+        const chamberSelection = document.getElementById('chamberSelect').value;
+        const stateSelection = document.getElementById('stateSelect').value;
+        const sortSelection = document.getElementById('sortSelect').value;
+        const startDateStr = offsetToDateStr(document.getElementById('startDateSlider').value);
+        const endDateStr = offsetToDateStr(document.getElementById('endDateSlider').value);
+        
+        const thead = document.getElementById('tableHead');
+        const body = document.getElementById('resultsBody');
+        const btn = document.getElementById('loadBtn');
+        
+        body.innerHTML = ''; btn.disabled = true; btn.innerText = 'Loading...';
+
+        try {
+            // --- 1. LOAD CONGRESSIONAL ROSTER ---
+            let aggregates = {};
+            let idToNameMap = {};
+            
+            if (!window.legislatorsCache) {
+                const legRes = await fetch('https://unitedstates.github.io/congress-legislators/legislators-current.json');
+                if (!legRes.ok) throw new Error(`GitHub Roster Error: ${legRes.status}`);
+                window.legislatorsCache = await legRes.json();
+            }
+            
+            window.legislatorsCache.forEach(leg => {
+                const currentTerm = leg.terms[leg.terms.length - 1];
+                const type = currentTerm.type === 'sen' ? 'Senate' : 'House';
+                const name = leg.name.official_full || `${leg.name.first} ${leg.name.last}`;
+                
+                if (leg.id.fec) {
+                    leg.id.fec.forEach(id => idToNameMap[id] = { name, type, state: currentTerm.state, party: currentTerm.party });
+                }
+
+                // Build aggregate map
+                aggregates[leg.id.bioguide] = {
+                    name: name, last_name: leg.name.last.toUpperCase(),
+                    state: currentTerm.state, party: currentTerm.party, type: type,
+                    fec_ids: leg.id.fec || [], total: 0
+                };
+            });
+            
+            // --- 2. FETCH FEC DATA (With Cache Buster) ---
+            if (!window.fecDataCache) {
+                // THE FIX: Appending a timestamp forces the browser to ignore the broken cached file!
+                const res = await fetch('fec_data.json?nocache=' + new Date().getTime());
+                if (!res.ok) throw new Error(`Database missing! Run Python script first.`);
+                window.fecDataCache = await res.json();
+            }
+
+            // --- 3. CALCULATE TOTALS ---
+            window.fecDataCache.forEach(r => {
+                if (pacSelection !== 'ALL' && r.committee_id !== pacSelection) return;
+                if (!r.disbursement_date) return;
+                const rDate = r.disbursement_date.substring(0, 10);
+                if (rDate < startDateStr || rDate > endDateStr) return;
+
+                const amount = r.disbursement_amount || 0;
+                const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
+                const recName = (r.recipient_name || r.recipient_committee_name || '').toUpperCase();
+                
+                let matched = false;
+                for (let bioId in aggregates) {
+                    if (targetIds.some(id => aggregates[bioId].fec_ids.includes(id))) {
+                        aggregates[bioId].total += amount; matched = true; break;
+                    }
+                }
+                
+                if (!matched) {
+                    const isGeneric = ['PARTY', 'DCCC', 'NRCC', 'DSCC', 'NRSC', 'DNC', 'RNC'].some(k => recName.includes(k));
+                    if (!isGeneric) {
+                        for (let bioId in aggregates) {
+                            if (recName.includes(aggregates[bioId].last_name)) {
+                                aggregates[bioId].total += amount; break;
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- 4. DRAW CHARTS ---
+            document.getElementById('vizContainer').style.display = 'flex';
+            let allMembers = Object.values(aggregates);
+            drawParliamentChart("#houseChart", allMembers.filter(m => m.type === 'House'), true);
+            drawParliamentChart("#senateChart", allMembers.filter(m => m.type === 'Senate'), false);
+
+            // --- 5. APPLY STRICT VIEW FILTERS FOR THE TABLE ---
+            let allowedFecIds = new Set();
+            if (window.zoomedFecIds) {
+                window.zoomedFecIds.forEach(id => allowedFecIds.add(id));
+            } else {
+                allMembers.forEach(m => {
+                    let passes = true;
+                    if (stateSelection && m.state !== stateSelection) passes = false;
+                    if (chamberSelection && m.type !== chamberSelection) passes = false;
+                    if (passes) m.fec_ids.forEach(id => allowedFecIds.add(id));
+                });
+            }
+
+            if (viewMode === 'raw') {
+                let tableResults = window.fecDataCache.filter(r => {
+                    if (pacSelection !== 'ALL' && r.committee_id !== pacSelection) return false;
+                    if (!r.disbursement_date) return false;
+                    const rDate = r.disbursement_date.substring(0, 10);
+                    if (rDate < startDateStr || rDate > endDateStr) return false;
+
+                    const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
+                    let hasIdMatch = targetIds.some(id => allowedFecIds.has(id));
+                    
+                    if (!hasIdMatch) {
+                        const recName = (r.recipient_name || r.recipient_committee_name || '').toUpperCase();
+                        const isGeneric = ['PARTY', 'DCCC', 'NRCC', 'DSCC', 'NRSC', 'DNC', 'RNC'].some(k => recName.includes(k));
+                        let fuzzyMatch = false;
+                        if (!isGeneric) {
+                            for (let bioId in aggregates) {
+                                if (recName.includes(aggregates[bioId].last_name)) {
+                                    if (allowedFecIds.has(aggregates[bioId].fec_ids[0])) { fuzzyMatch = true; break; }
+                                }
+                            }
+                        }
+                        if (!fuzzyMatch) return false;
+                    }
+                    return true;
+                });
+
+                tableResults.sort((a, b) => {
+                    if (sortSelection === '-disbursement_amount') return (b.disbursement_amount || 0) - (a.disbursement_amount || 0);
+                    if (sortSelection === 'disbursement_amount') return (a.disbursement_amount || 0) - (b.disbursement_amount || 0);
+                    if (sortSelection === '-disbursement_date') return new Date(b.disbursement_date) - new Date(a.disbursement_date);
+                    if (sortSelection === 'disbursement_date') return new Date(a.disbursement_date) - new Date(b.disbursement_date);
+                    return 0;
+                });
+                tableResults = tableResults.slice(0, 150);
+
+                thead.innerHTML = `<tr><th width="10%">Date</th><th width="15%">Origin PAC</th><th width="35%">Recipient / Target</th><th width="15%">Type</th><th width="25%">Amount</th></tr>`;
+                
+                if (tableResults.length === 0) {
+                    body.innerHTML = '<tr><td colspan="5" class="empty-state">No records found.</td></tr>';
+                } else {
+                    tableResults.forEach(r => {
+                        const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(r.disbursement_amount || 0);
+                        const pacName = PAC_NAMES[r.committee_id] || r.committee_id;
+                        const row = document.createElement('tr');
+                        
+                        const recName = r.recipient_name || r.recipient_committee_name || 'Unknown';
+                        const recType = r.record_type || 'Direct';
+                        
+                        row.innerHTML = `<td>${r.disbursement_date.substring(0,10)}</td><td><span style="color:var(--accent-color); font-weight:500;">${pacName}</span></td><td><strong>${recName}</strong></td><td><span style="font-size:0.85em; background:#e2e8f0; padding:2px 6px; border-radius:4px;">${recType}</span></td><td class="amount-cell">${formattedAmount}</td>`;
+                        body.appendChild(row);
+                    });
+                }
+                setStatus(window.zoomedFecIds ? `Viewing isolated records for clicked member.` : `Successfully retrieved records.`, 'success');
+
+            } else {
+                let filteredAggregates = allMembers.filter(m => {
+                    if (window.zoomedFecIds) return window.zoomedFecIds.includes(m.fec_ids[0]);
+                    if (stateSelection && m.state !== stateSelection) return false;
+                    if (chamberSelection && m.type !== chamberSelection) return false;
+                    return true;
+                });
+
+                if (viewMode === 'zero') {
+                    filteredAggregates = filteredAggregates.filter(r => r.total === 0).sort((a, b) => a.name.localeCompare(b.name));
+                } else {
+                    filteredAggregates = filteredAggregates.filter(r => r.total > 0).sort((a, b) => b.total - a.total);
+                }
+
+                thead.innerHTML = `<tr><th width="50%">Legislator</th><th width="25%">State / Party</th><th width="25%">Total Received</th></tr>`;
+                if (filteredAggregates.length === 0) {
+                     body.innerHTML = '<tr><td colspan="3" class="empty-state">No members matched this criteria.</td></tr>';
+                } else {
+                    filteredAggregates.forEach(r => {
+                        const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(r.total);
+                        const pDetails = getPartyDetails(r.party);
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td><strong class="${pDetails.className}">${r.name} (${pDetails.initial})</strong><br><small style="color:var(--text-muted)">${r.type}</small></td><td>${r.state} - ${r.party}</td><td class="amount-cell" style="color: ${r.total === 0 ? 'var(--text-muted)' : 'inherit'}">${formattedAmount}</td>`;
+                        body.appendChild(row);
+                    });
+                }
+                setStatus(viewMode === 'zero' ? `Found ${filteredAggregates.length} members with $0.` : `Aggregated donations for ${filteredAggregates.length} members.`, 'success');
+            }
+        } catch (error) {
+            console.error(error);
+            setStatus(`<strong>Error:</strong> ${error.message}`, 'error');
+        } finally {
+            btn.disabled = false; btn.innerText = 'Load Data';
+        }
+    }
 </script>
 </body>
 </html>
