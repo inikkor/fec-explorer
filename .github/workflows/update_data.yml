@@ -26,6 +26,9 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install dependencies
+        run: pip install requests urllib3
+
       # Runs if scheduled OR if you checked the "Update Roster" box
       - name: Fetch Current Roster
         if: github.event_name == 'schedule' || inputs.run_roster == true
