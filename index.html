@@ -232,6 +232,11 @@
 </div>
 
 <script>
+    const MAPPING_OVERRIDE = {
+    'CONYEARS-ERVIN': 'C001147',
+    'MASSY': 'M001184'
+     };
+    
     const PAC_NAMES = {
         'C00797670': 'AIPAC PAC', 'C00799031': 'UDP (AIPAC Super PAC)',
         'C00441949': 'J Street PAC', 'C00710848': 'DMFI PAC',
@@ -496,30 +501,31 @@
             }
 
             // --- 3. CALCULATE TOTALS ---
-            window.fecDataCache.forEach(r => {
+           window.fecDataCache.forEach(r => {
                 if (pacSelection !== 'ALL' && r.committee_id !== pacSelection) return;
                 if (!r.disbursement_date) return;
                 const rDate = r.disbursement_date.substring(0, 10);
                 if (rDate < startDateStr || rDate > endDateStr) return;
-
-                const amount = r.disbursement_amount || 0;
-                const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
-                const recName = (r.recipient_name || r.recipient_committee_name || '').toUpperCase();
-                
+            
+                const amount = parseFloat(r.disbursement_amount || r.expenditure_amount || 0);
+                const recName = (r.recipient_name || r.candidate_name || '').toUpperCase();
                 let matched = false;
-                for (let bioId in aggregates) {
-                    if (targetIds.some(id => aggregates[bioId].fec_ids.includes(id))) {
-                        aggregates[bioId].total += amount; matched = true; break;
+            
+                // 1. Override Check
+                for (let key in MAPPING_OVERRIDE) {
+                    if (recName.includes(key)) {
+                        const bioId = MAPPING_OVERRIDE[key];
+                        if (aggregates[bioId]) { aggregates[bioId].total += amount; matched = true; break; }
                     }
                 }
-                
+            
+                // 2. Standard ID/Fuzzy Match
                 if (!matched) {
-                    const isGeneric = ['PARTY', 'DCCC', 'NRCC', 'DSCC', 'NRSC', 'DNC', 'RNC'].some(k => recName.includes(k));
-                    if (!isGeneric) {
-                        for (let bioId in aggregates) {
-                            if (recName.includes(aggregates[bioId].last_name)) {
-                                aggregates[bioId].total += amount; break;
-                            }
+                    const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
+                    for (let bioId in aggregates) {
+                        if (targetIds.some(id => aggregates[bioId].fec_ids.includes(id)) || 
+                           (recName.includes(aggregates[bioId].last_name) && !['PARTY', 'DCCC', 'NRCC'].some(k => recName.includes(k)))) {
+                            aggregates[bioId].total += amount; matched = true; break;
                         }
                     }
                 }
