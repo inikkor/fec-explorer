@@ -451,9 +451,9 @@
                 };
             });
             
-            // --- 2. FETCH FEC DATA (With Cache Buster) ---
+            // --- 2. FETCH FEC DATA ---
             if (!window.fecDataCache) {
-                // THE FIX: Appending a timestamp forces the browser to ignore the broken cached file!
+                // THE FIX: Cache-Buster appended to ensure fresh data pull
                 const res = await fetch('fec_data.json?nocache=' + new Date().getTime());
                 if (!res.ok) throw new Error(`Database missing! Run Python script first.`);
                 window.fecDataCache = await res.json();
@@ -515,6 +515,11 @@
                     const rDate = r.disbursement_date.substring(0, 10);
                     if (rDate < startDateStr || rDate > endDateStr) return false;
 
+                    // THE FIX: If there are NO geographic/zoom filters, do not accidentally hide unmapped records. 
+                    if (!window.zoomedFecIds && !stateSelection && !chamberSelection) {
+                        return true;
+                    }
+
                     const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
                     let hasIdMatch = targetIds.some(id => allowedFecIds.has(id));
                     
@@ -554,7 +559,7 @@
                         const row = document.createElement('tr');
                         
                         const recName = r.recipient_name || r.recipient_committee_name || 'Unknown';
-                        const recType = r.record_type || 'Direct';
+                        const recType = r.record_type || 'Direct'; // Identifies Super PAC IE vs Direct
                         
                         row.innerHTML = `<td>${r.disbursement_date.substring(0,10)}</td><td><span style="color:var(--accent-color); font-weight:500;">${pacName}</span></td><td><strong>${recName}</strong></td><td><span style="font-size:0.85em; background:#e2e8f0; padding:2px 6px; border-radius:4px;">${recType}</span></td><td class="amount-cell">${formattedAmount}</td>`;
                         body.appendChild(row);
@@ -600,3 +605,4 @@
 </script>
 </body>
 </html>
+
