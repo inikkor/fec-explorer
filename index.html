@@ -244,7 +244,6 @@
     const today = new Date();
     const totalDays = Math.floor((today - baseDate) / (1000 * 60 * 60 * 24));
 
-    // Global variable for Click-to-Zoom functionality
     window.zoomedFecIds = null;
 
     function offsetToDateStr(offset) {
@@ -274,7 +273,6 @@
         startSlider.min = 0; startSlider.max = totalDays;
         endSlider.min = 0; endSlider.max = totalDays;
         
-        // Defaults to entire cycle
         endSlider.value = totalDays; 
         startSlider.value = 0;
 
@@ -293,20 +291,12 @@
         document.getElementById('sortSelect').disabled = (mode !== 'raw');
     }
 
-    function setStatus(msg, type = 'loading') {
-        const statusEl = document.getElementById('status');
-        statusEl.className = `active ${type}`;
-        statusEl.innerHTML = msg;
-    }
-
-    // Activated when a user clicks a dot on the chart
     function triggerZoom(fecIds) {
         window.zoomedFecIds = fecIds;
         document.getElementById('viewMode').value = 'raw';
         toggleSort();
         document.getElementById('clearZoomBtn').style.display = 'inline-block';
         fetchData();
-        // Scroll down to table
         document.querySelector('.table-container').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -316,31 +306,30 @@
         fetchData();
     }
 
-    // --- D3 PARLIAMENT CHART ALGORITHM ---
-    function drawParliamentChart(containerId, membersData, isHouse) {
+    // --- PARLIAMENT CHART WITH COLOR SHADING AND STATE HIGHLIGHTS ---
+    function drawParliamentChart(containerId, membersData, isHouse, stateSelection) {
         const container = d3.select(containerId);
-        container.html(""); // Clear previous
+        container.html(""); 
         
         const width = 450, height = 250;
         const svg = container.append("svg").attr("viewBox", `0 0 ${width} ${height}`).attr("width", "100%").attr("height", "100%");
         
-        // Sorting: Democrats Left, Independents Center, Republicans Right
         const partySortWeight = { 'Democrat': 1, 'Independent': 2, 'Republican': 3 };
         membersData.sort((a, b) => {
             let pA = partySortWeight[a.party] || 4;
             let pB = partySortWeight[b.party] || 4;
             if (pA !== pB) return pA - pB;
-            
-            // Dems: Highest earners on the far-left edge
             if (pA === 1) return b.total - a.total;
-            
-            // Reps: Reversed so highest earners are on the far-right edge
             if (pA === 3) return a.total - b.total;
-            
             return b.total - a.total;
         });
 
-        // Generate Math for Concentric Arcs
+        // Dynamic Color Shading Scales
+        const maxTotal = d3.max(membersData, d => d.total) || 1;
+        const demColor = d3.scaleSqrt().domain([0, maxTotal]).range(['#93c5fd', '#1e3a8a']); 
+        const repColor = d3.scaleSqrt().domain([0, maxTotal]).range(['#fca5a5', '#7f1d1d']); 
+        const indColor = d3.scaleSqrt().domain([0, maxTotal]).range(['#6ee7b7', '#064e3b']); 
+
         const numRows = isHouse ? 9 : 4;
         const maxRadius = 220;
         const minRadius = isHouse ? 80 : 100;
@@ -354,23 +343,25 @@
         for(let i=0; i<numRows; i++) {
             let r = minRadius + i * (maxRadius - minRadius) / (numRows - 1);
             let pointsInRow = Math.round((r / totalCapacity) * membersData.length);
-            if (i === numRows - 1) pointsInRow = pointsLeft; // Remainder
+            if (i === numRows - 1) pointsInRow = pointsLeft;
             pointsLeft -= pointsInRow;
             
             let angleStep = Math.PI / (pointsInRow - 1 || 1);
             for(let j=0; j<pointsInRow; j++) {
-                let angle = Math.PI - (j * angleStep); // From π (left) to 0 (right)
+                let angle = Math.PI - (j * angleStep); 
                 positions.push({ x: center.x + r * Math.cos(angle), y: center.y - r * Math.sin(angle), angle: angle });
             }
         }
         
-        // Sort positions to match party sorting (Left to Right)
         positions.sort((a, b) => b.angle - a.angle);
         
         const tooltip = d3.select("#tooltip");
         const formatMoney = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format;
 
-        // Draw Circles
+        // Dynamic Highlight logic for State outlines
+        const getStroke = d => (stateSelection && d.state === stateSelection) ? "#000" : (d.total > 0 ? "#fff" : getPartyDetails(d.party).color);
+        const getStrokeWidth = d => (stateSelection && d.state === stateSelection) ? "2.5px" : "1.5px";
+
         svg.selectAll("circle")
             .data(membersData)
             .enter()
@@ -380,11 +371,20 @@
             .attr("cy", (d, i) => positions[i] ? positions[i].y : center.y)
             .attr("r", isHouse ? 4.5 : 6)
             .attr("fill", d => {
-                const colors = getPartyDetails(d.party);
-                return d.total > 0 ? colors.color : colors.lightColor;
+                if (d.total === 0) return getPartyDetails(d.party).lightColor;
+                const p = d.party.toUpperCase();
+                if (p.includes('DEMOCRAT')) return demColor(d.total);
+                if (p.includes('REPUBLICAN')) return repColor(d.total);
+                if (p.includes('INDEPENDENT')) return indColor(d.total);
+                return '#64748b';
             })
-            .attr("stroke", d => d.total > 0 ? "#fff" : getPartyDetails(d.party).color)
-            .style("opacity", d => (window.zoomedFecIds && !window.zoomedFecIds.includes(d.fec_ids[0])) ? 0.2 : 1)
+            .attr("stroke", getStroke)
+            .style("stroke-width", getStrokeWidth)
+            .style("opacity", d => {
+                if (window.zoomedFecIds && !window.zoomedFecIds.includes(d.fec_ids[0])) return 0.2;
+                if (stateSelection && d.state !== stateSelection) return 0.2;
+                return 1;
+            })
             .on("mouseover", function(event, d) {
                 d3.select(this).style("stroke", "#000").style("stroke-width", "2.5px").attr("r", isHouse ? 6 : 8);
                 const pInfo = getPartyDetails(d.party);
@@ -398,8 +398,8 @@
             })
             .on("mouseout", function(event, d) {
                 d3.select(this)
-                    .style("stroke", d.total > 0 ? "#fff" : getPartyDetails(d.party).color)
-                    .style("stroke-width", "1.5px")
+                    .style("stroke", getStroke(d))
+                    .style("stroke-width", getStrokeWidth(d))
                     .attr("r", isHouse ? 4.5 : 6);
                 tooltip.style("opacity", 0);
             })
@@ -420,18 +420,34 @@
         const thead = document.getElementById('tableHead');
         const body = document.getElementById('resultsBody');
         const btn = document.getElementById('loadBtn');
+        const statusEl = document.getElementById('status');
         
-        body.innerHTML = ''; btn.disabled = true; btn.innerText = 'Loading...';
+        body.innerHTML = ''; 
+        btn.disabled = true; 
+        btn.innerText = 'Loading...';
+        statusEl.className = 'active loading';
+        statusEl.innerHTML = 'Loading data...';
 
         try {
-            // --- 1. LOAD CONGRESSIONAL ROSTER ---
             let aggregates = {};
             let idToNameMap = {};
             
+            // 1. SAFARI-SAFE ROSTER FETCH
             if (!window.legislatorsCache) {
-                const legRes = await fetch('https://unitedstates.github.io/congress-legislators/legislators-current.json');
-                if (!legRes.ok) throw new Error(`GitHub Roster Error: ${legRes.status}`);
-                window.legislatorsCache = await legRes.json();
+                const rosterUrl = 'https://unitedstates.github.io/congress-legislators/legislators-current.json';
+                try {
+                    const legRes = await fetch(rosterUrl);
+                    if (!legRes.ok) throw new Error("Roster fetch not OK");
+                    window.legislatorsCache = await legRes.json();
+                } catch (e) {
+                    console.log("Direct roster fetch failed. Trying CORS Proxy for Canvas preview...");
+                    try {
+                        const proxyRes = await fetch('https://corsproxy.io/?' + encodeURIComponent(rosterUrl));
+                        window.legislatorsCache = await proxyRes.json();
+                    } catch (proxyError) {
+                        throw new Error(`Roster blocked by Safari tracking protection. Please preview in Chrome or publish to GitHub Pages!`);
+                    }
+                }
             }
             
             window.legislatorsCache.forEach(leg => {
@@ -443,7 +459,6 @@
                     leg.id.fec.forEach(id => idToNameMap[id] = { name, type, state: currentTerm.state, party: currentTerm.party });
                 }
 
-                // Build aggregate map
                 aggregates[leg.id.bioguide] = {
                     name: name, last_name: leg.name.last.toUpperCase(),
                     state: currentTerm.state, party: currentTerm.party, type: type,
@@ -451,12 +466,33 @@
                 };
             });
             
-            // --- 2. FETCH FEC DATA ---
+            // 2. SAFARI-SAFE FEC DATA FETCH
             if (!window.fecDataCache) {
-                // THE FIX: Cache-Buster appended to ensure fresh data pull
-                const res = await fetch('fec_data.json?nocache=' + new Date().getTime());
-                if (!res.ok) throw new Error(`Database missing! Run Python script first.`);
-                window.fecDataCache = await res.json();
+                let res;
+                const cacheBuster = '?nocache=' + new Date().getTime();
+                const githubRawUrl = 'https://raw.githubusercontent.com/inikkor/fec-explorer/main/fec_data.json';
+                
+                try {
+                    res = await fetch('fec_data.json' + cacheBuster);
+                    if (!res.ok) throw new Error("Local fetch failed");
+                } catch (e) {
+                    console.log("Local fetch failed. Attempting GitHub Raw URL fallback for 'inikkor'...");
+                    try {
+                        res = await fetch(githubRawUrl + cacheBuster);
+                        if (!res.ok) throw new Error("Raw fetch failed");
+                    } catch (fallbackError) {
+                        console.log("Raw fetch failed. Attempting proxy fallback for Safari Canvas...");
+                        try {
+                            res = await fetch('https://corsproxy.io/?' + encodeURIComponent(githubRawUrl + cacheBuster));
+                        } catch (proxyError) {
+                            throw new Error(`Data blocked by Safari tracking protection. Please preview in Chrome or publish to GitHub Pages!`);
+                        }
+                    }
+                }
+
+                const rawDataText = await res.text();
+                if (!rawDataText.trim().startsWith('[')) throw new Error("File formatting issue detected.");
+                window.fecDataCache = JSON.parse(rawDataText);
             }
 
             // --- 3. CALCULATE TOTALS ---
@@ -489,13 +525,13 @@
                 }
             });
 
-            // --- 4. DRAW CHARTS ---
+            // --- 4. DRAW CHARTS WITH STATE SELECTION ---
             document.getElementById('vizContainer').style.display = 'flex';
             let allMembers = Object.values(aggregates);
-            drawParliamentChart("#houseChart", allMembers.filter(m => m.type === 'House'), true);
-            drawParliamentChart("#senateChart", allMembers.filter(m => m.type === 'Senate'), false);
+            drawParliamentChart("#houseChart", allMembers.filter(m => m.type === 'House'), true, stateSelection);
+            drawParliamentChart("#senateChart", allMembers.filter(m => m.type === 'Senate'), false, stateSelection);
 
-            // --- 5. APPLY STRICT VIEW FILTERS FOR THE TABLE ---
+            // --- 5. TABLE LOGIC ---
             let allowedFecIds = new Set();
             if (window.zoomedFecIds) {
                 window.zoomedFecIds.forEach(id => allowedFecIds.add(id));
@@ -514,11 +550,6 @@
                     if (!r.disbursement_date) return false;
                     const rDate = r.disbursement_date.substring(0, 10);
                     if (rDate < startDateStr || rDate > endDateStr) return false;
-
-                    // THE FIX: If there are NO geographic/zoom filters, do not accidentally hide unmapped records. 
-                    if (!window.zoomedFecIds && !stateSelection && !chamberSelection) {
-                        return true;
-                    }
 
                     const targetIds = [r.candidate_id, r.beneficiary_candidate_id, r.recipient_committee_id].filter(Boolean);
                     let hasIdMatch = targetIds.some(id => allowedFecIds.has(id));
@@ -557,15 +588,15 @@
                         const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(r.disbursement_amount || 0);
                         const pacName = PAC_NAMES[r.committee_id] || r.committee_id;
                         const row = document.createElement('tr');
-                        
                         const recName = r.recipient_name || r.recipient_committee_name || 'Unknown';
-                        const recType = r.record_type || 'Direct'; // Identifies Super PAC IE vs Direct
+                        const recType = r.record_type || 'Direct';
                         
                         row.innerHTML = `<td>${r.disbursement_date.substring(0,10)}</td><td><span style="color:var(--accent-color); font-weight:500;">${pacName}</span></td><td><strong>${recName}</strong></td><td><span style="font-size:0.85em; background:#e2e8f0; padding:2px 6px; border-radius:4px;">${recType}</span></td><td class="amount-cell">${formattedAmount}</td>`;
                         body.appendChild(row);
                     });
                 }
-                setStatus(window.zoomedFecIds ? `Viewing isolated records for clicked member.` : `Successfully retrieved records.`, 'success');
+                statusEl.className = 'active success';
+                statusEl.innerHTML = window.zoomedFecIds ? `Viewing isolated records for clicked member.` : `Successfully retrieved records.`;
 
             } else {
                 let filteredAggregates = allMembers.filter(m => {
@@ -593,11 +624,13 @@
                         body.appendChild(row);
                     });
                 }
-                setStatus(viewMode === 'zero' ? `Found ${filteredAggregates.length} members with $0.` : `Aggregated donations for ${filteredAggregates.length} members.`, 'success');
+                statusEl.className = 'active success';
+                statusEl.innerHTML = viewMode === 'zero' ? `Found ${filteredAggregates.length} members with $0.` : `Aggregated donations for ${filteredAggregates.length} members.`;
             }
         } catch (error) {
             console.error(error);
-            setStatus(`<strong>Error:</strong> ${error.message}`, 'error');
+            statusEl.className = 'active error';
+            statusEl.innerHTML = `<strong>Error:</strong> ${error.message}`;
         } finally {
             btn.disabled = false; btn.innerText = 'Load Data';
         }
