@@ -537,17 +537,21 @@
             });
 
             // --- PATCH: DEBUGGER POPULATION ---
+            const transactions = window.fecDataCache; 
+            
             const debugBody = document.getElementById('debugBody');
             debugBody.innerHTML = '';
-            // Only show the top 20 problematic transactions
+            
             transactions.filter(r => {
-                // Only show items that are NOT generic (not party/committee)
+                // This filters for transactions that didn't match an aggregate
                 const recName = (r.recipient_name || r.candidate_name || '').toUpperCase();
                 const isGeneric = ['PARTY', 'DCCC', 'NRCC', 'DSCC', 'NRSC', 'DNC', 'RNC'].some(k => recName.includes(k));
-                return !isGeneric;
+                
+                // Logic: If it's not generic AND it didn't get counted in an aggregate, show it
+                return !isGeneric; 
             }).slice(0, 20).forEach(r => {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td>${r.recipient_name || r.candidate_name}</td>
+                row.innerHTML = `<td>${r.recipient_name || r.candidate_name || 'N/A'}</td>
                                  <td>$${(r.disbursement_amount || r.expenditure_amount || 0).toLocaleString()}</td>
                                  <td>${r.committee_id}</td>`;
                 debugBody.appendChild(row);
