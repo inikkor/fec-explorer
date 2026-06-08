@@ -659,6 +659,25 @@
                 statusEl.className = 'active success';
                 statusEl.innerHTML = viewMode === 'zero' ? `Found ${filteredAggregates.length} members with $0.` : `Aggregated donations for ${filteredAggregates.length} members.`;
             }
+
+            const debugBody = document.getElementById('debugBody');
+debugBody.innerHTML = '';
+
+// We access the data directly from the global cache
+            const transactions = window.fecDataCache;
+            
+            transactions.filter(r => {
+                const recName = (r.recipient_name || r.candidate_name || '').toUpperCase();
+                const isGeneric = ['PARTY', 'DCCC', 'NRCC', 'DSCC', 'NRSC', 'DNC', 'RNC'].some(k => recName.includes(k));
+                return !isGeneric; 
+            }).slice(0, 20).forEach(r => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${r.recipient_name || r.candidate_name || 'N/A'}</td>
+                                 <td>$${(r.disbursement_amount || r.expenditure_amount || 0).toLocaleString()}</td>
+                                 <td>${r.committee_id}</td>`;
+                debugBody.appendChild(row);
+            });
+            
         } catch (error) {
             console.error(error);
             statusEl.className = 'active error';
@@ -666,6 +685,9 @@
         } finally {
             btn.disabled = false; btn.innerText = 'Load Data';
         }
+
+        
+        
     }
 </script>
 </body>
