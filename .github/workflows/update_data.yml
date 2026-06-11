@@ -7,11 +7,11 @@ on:
       run_roster:
         description: 'Update Roster (members.json)'
         type: boolean
-        default: true
+        default: false
       run_fec:
         description: 'Update FEC Data (fec_data.json)'
         type: boolean
-        default: false # Set to false so it doesn't run by default manually
+        default: true # Set to false so it doesn't run by default manually
 
 jobs:
   update-all:
