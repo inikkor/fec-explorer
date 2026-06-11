@@ -126,7 +126,7 @@ def fetch_schedule_e(session, api_key, committee_id, min_date=None):
             
             if not results: break
                 
-            for record in results:
+           for record in results:
             # Normalize date format
             raw_date = record.get("expenditure_date")
             formatted_date = raw_date if not raw_date or "T" in raw_date else f"{raw_date}T00:00:00"
@@ -154,14 +154,13 @@ def fetch_schedule_e(session, api_key, committee_id, min_date=None):
                 "committee_id": record.get("committee_id"),
                 "disbursement_amount": record.get("expenditure_amount") or 0.0,
                 "disbursement_date": formatted_date,
-                # PATCH: Use the clean combined display string so the downstream UI matches the member!
                 "recipient_name": display_recipient,
                 "candidate_id": record.get("candidate_id"),
-                "beneficiary_candidate_id": record.get("candidate_id"), # For Schedule E, this matches the target
+                "beneficiary_candidate_id": record.get("candidate_id"),
                 "recipient_committee_id": None,
                 "record_type": "Super PAC IE"
             })
-            
+               
             pagination = payload.get("pagination", {})
             last_indexes = pagination.get("last_indexes")
             if not last_indexes:
