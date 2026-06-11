@@ -4,6 +4,7 @@ import json
 import time
 import argparse
 import requests
+import re
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -126,27 +127,40 @@ def fetch_schedule_e(session, api_key, committee_id, min_date=None):
             if not results: break
                 
             for record in results:
-                support_oppose = "SUPPORTING" if record.get("support_oppose_indicator") == "S" else "OPPOSING"
-                target_candidate = record.get("candidate_name", "Unknown Candidate")
+            # Normalize date format
+            raw_date = record.get("expenditure_date")
+            formatted_date = raw_date if not raw_date or "T" in raw_date else f"{raw_date}T00:00:00"
+            
+            # Extract the actual target candidate name directly from the FEC API data
+            fec_candidate_name = record.get("candidate_name")
+            support_oppose = record.get("support_oppose_indicator", "") # 'S' for support, 'O' for oppose
+            
+            # Clean and reformat the candidate name if present
+            if fec_candidate_name:
+                if ',' in fec_candidate_name:
+                    last_name, first_name = fec_candidate_name.split(',', 1)
+                    clean_target = f"{first_name.strip()} {last_name.strip()}".title()
+                else:
+                    clean_target = fec_candidate_name.title()
                 
-                # Normalize date to include the "T00:00:00" timestamp if missing
-                raw_date = record.get("expenditure_date")
-                formatted_date = None
-                if raw_date:
-                    formatted_date = raw_date if "T" in raw_date else f"{raw_date}T00:00:00"
+                # Append context so it shows beautifully in your UI tables
+                prefix = "SUPPORTING" if support_oppose == "S" else "OPPOSING"
+                display_recipient = f"{record.get('recipient_name')} (IE: {prefix} {clean_target})"
+            else:
+                display_recipient = record.get("recipient_name") or "Unknown Vendor"
 
-                records.append({
-                    "transaction_id": record.get("transaction_id") or record.get("sub_id"),
-                    "committee_id": record.get("committee_id"),
-                    "disbursement_amount": record.get("expenditure_amount") or 0.0, 
-                    "disbursement_date": formatted_date,
-                    "recipient_name": f"{record.get('payee_name', 'Ad Agency')} (IE: {support_oppose} {target_candidate})",
-                    "candidate_id": record.get("candidate_id") or "",
-                    # Explicitly pad missing keys with null/None to satisfy the frontend parser
-                    "beneficiary_candidate_id": None,
-                    "recipient_committee_id": None,
-                    "record_type": "Super PAC IE"
-                })
+            records.append({
+                "transaction_id": record.get("transaction_id"),
+                "committee_id": record.get("committee_id"),
+                "disbursement_amount": record.get("expenditure_amount") or 0.0,
+                "disbursement_date": formatted_date,
+                # PATCH: Use the clean combined display string so the downstream UI matches the member!
+                "recipient_name": display_recipient,
+                "candidate_id": record.get("candidate_id"),
+                "beneficiary_candidate_id": record.get("candidate_id"), # For Schedule E, this matches the target
+                "recipient_committee_id": None,
+                "record_type": "Super PAC IE"
+            })
             
             pagination = payload.get("pagination", {})
             last_indexes = pagination.get("last_indexes")
