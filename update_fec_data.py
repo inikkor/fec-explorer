@@ -172,10 +172,6 @@ def main():
     api_key = os.environ.get("FEC_API_KEY", "DEMO_KEY")
     
     existing_data = []
-    print(f"Loaded existing records. Fetching updates since: {min_date}", flush=True)
-    min_date = None
-
-    
 
 # 1. Initialize min_date at the top level first
     min_date = None
