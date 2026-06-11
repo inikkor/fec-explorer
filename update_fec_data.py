@@ -11,7 +11,20 @@ from urllib3.util.retry import Retry
 # Ensure logs appear immediately in GitHub Actions
 sys.stdout.reconfigure(line_buffering=True)
 
-PAC_LIST = ["C00797670", "C00799031", "C00441949", "C00710848", "C00345132", "C00697219", "C00278143"]
+PAC_LIST = [
+    "C00797670", # AIPAC PAC
+    "C00799031", # United Democracy Project (AIPAC Super PAC)
+    "C00441949", # JStreetPAC
+    "C00815753", # J Street Action Fund (J Street Super PAC)
+    "C00710848", # DMFI PAC (Hybrid)
+    "C00345132", # Republican Jewish Coalition PAC
+    "C00528554", # RJC Victory Fund (RJC Super PAC)
+    "C00697219", # Pro-Israel America PAC
+    "C00278143", # NORPAC
+    "C00804823", # Mainstream Democrats PAC
+    "C00647768", # ZPAC
+    "C00135541"  # To Protect Our Heritage PAC
+]
 
 def get_robust_session():
     """Sets up an HTTP session with automatic retries for rate limits and server errors."""
