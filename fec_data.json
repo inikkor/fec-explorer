@@ -6796,5 +6796,60 @@
     "beneficiary_candidate_id": null,
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EFC0AC7FBD57E4E16B3B",
+    "committee_id": "C00799031",
+    "disbursement_amount": -2406.43,
+    "disbursement_date": "2025-06-09T00:00:00",
+    "recipient_name": "MVAR MEDIA LLC (IE: OPPOSING COLLINS, KINA)",
+    "candidate_id": "H0IL07167",
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EF62DAAA0CED94987AA2",
+    "committee_id": "C00799031",
+    "disbursement_amount": -7272.46,
+    "disbursement_date": "2025-01-31T00:00:00",
+    "recipient_name": "TARGETED PLATFORM MEDIA LLC (IE: OPPOSING COLLINS, KINA)",
+    "candidate_id": "H0IL07167",
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E74FC9014E4C9423EB93",
+    "committee_id": "C00799031",
+    "disbursement_amount": -28159.84,
+    "disbursement_date": "2025-01-31T00:00:00",
+    "recipient_name": "TARGETED PLATFORM MEDIA LLC (IE: SUPPORTING GOMEZ, JIMMY REP.)",
+    "candidate_id": "H8CA34266",
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E0E9CF7CC7FD9482381E",
+    "committee_id": "C00799031",
+    "disbursement_amount": -24033.39,
+    "disbursement_date": "2025-01-31T00:00:00",
+    "recipient_name": "TARGETED PLATFORM MEDIA LLC (IE: OPPOSING BOWMAN, JAMAAL REP.)",
+    "candidate_id": "H0NY16143",
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EFA528B2BE60443D29EB",
+    "committee_id": "C00799031",
+    "disbursement_amount": -22643.45,
+    "disbursement_date": "2025-01-31T00:00:00",
+    "recipient_name": "TARGETED PLATFORM MEDIA LLC (IE: OPPOSING BUSH, CORI REP.)",
+    "candidate_id": "H8MO01143",
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
