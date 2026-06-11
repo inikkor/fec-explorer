@@ -177,15 +177,26 @@ def main():
 
     
 
+# 1. Initialize min_date at the top level first
+    min_date = None
+
     if args.mode == "incremental":
-        min_date = get_latest_date_from_file("fec_data.json")
         try:
+            # 2. Assign the date inside the try block
+            min_date = get_latest_date_from_file("fec_data.json")
+            
             with open("fec_data.json", "r") as f:
                 existing_data = json.load(f)
+                
+            # 3. Print the debug statement here safely
             print(f"Loaded existing records. Fetching updates since: {min_date}", flush=True)
+            
         except Exception:
             print("No valid existing data. Falling back to full historical download.", flush=True)
             min_date = None
+
+
+    
 
     session = get_robust_session()
     new_records = []
