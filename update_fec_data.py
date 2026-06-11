@@ -99,7 +99,7 @@ def fetch_schedule_b(session, api_key, committee_id, min_date=None):
     return records
 
 def fetch_schedule_e(session, api_key, committee_id, min_date=None):
-    """Fetches Super PAC Independent Expenditures (Schedule E) with strict key normalization"""
+    """Fetches Super PAC Independent Expenditures (E) with strict key normalization"""
     records = []
     base_url = "https://api.open.fec.gov/v1/schedules/schedule_e/"
     
@@ -109,7 +109,9 @@ def fetch_schedule_e(session, api_key, committee_id, min_date=None):
         "cycle": 2026, # Schedule E uses 'cycle'
         "per_page": 100,
     }
-    if min_date: params["min_date"] = min_date
+    if min_date:
+        params["min_expenditure_date"] = min_date
+
 
     print(f"  -> Fetching Independent Expenditures (Schedule E)...", flush=True)
     page = 1
@@ -170,7 +172,10 @@ def main():
     api_key = os.environ.get("FEC_API_KEY", "DEMO_KEY")
     
     existing_data = []
+    print(f"Loaded existing records. Fetching updates since: {min_date}", flush=True)
     min_date = None
+
+    
 
     if args.mode == "incremental":
         min_date = get_latest_date_from_file("fec_data.json")
