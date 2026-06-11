@@ -53,7 +53,8 @@ def fetch_schedule_b(session, api_key, committee_id, min_date=None):
         "two_year_transaction_period": 2026, # Locks to current cycle to prevent massive historical pulls
         "per_page": 100,
     }
-    if min_date: params["min_date"] = min_date
+    if min_date: 
+        params["min_date"] = min_date
 
     print(f"  -> Fetching Direct Disbursements (Schedule B)...", flush=True)
     page = 1
@@ -65,7 +66,8 @@ def fetch_schedule_b(session, api_key, committee_id, min_date=None):
             payload = response.json()
             results = payload.get("results", [])
             
-            if not results: break
+            if not results: 
+                break
                 
             for record in results:
                 # Normalize date format
@@ -113,133 +115,4 @@ def fetch_schedule_e(session, api_key, committee_id, min_date=None):
     if min_date:
         params["min_expenditure_date"] = min_date
 
-
-    print(f"  -> Fetching Independent Expenditures (Schedule E)...", flush=True)
-    page = 1
-    while True:
-        try:
-            response = session.get(base_url, params=params, timeout=(5, 20))
-            response.raise_for_status()
-            
-            payload = response.json()
-            results = payload.get("results", [])
-            
-            if not results: break
-                
-           for record in results:
-            # Normalize date format
-            raw_date = record.get("expenditure_date")
-            formatted_date = raw_date if not raw_date or "T" in raw_date else f"{raw_date}T00:00:00"
-            
-            # Extract the actual target candidate name directly from the FEC API data
-            fec_candidate_name = record.get("candidate_name")
-            support_oppose = record.get("support_oppose_indicator", "") # 'S' for support, 'O' for oppose
-            
-            # Clean and reformat the candidate name if present
-            if fec_candidate_name:
-                if ',' in fec_candidate_name:
-                    last_name, first_name = fec_candidate_name.split(',', 1)
-                    clean_target = f"{first_name.strip()} {last_name.strip()}".title()
-                else:
-                    clean_target = fec_candidate_name.title()
-                
-                # Append context so it shows beautifully in your UI tables
-                prefix = "SUPPORTING" if support_oppose == "S" else "OPPOSING"
-                display_recipient = f"{record.get('recipient_name')} (IE: {prefix} {clean_target})"
-            else:
-                display_recipient = record.get("recipient_name") or "Unknown Vendor"
-
-            records.append({
-                "transaction_id": record.get("transaction_id"),
-                "committee_id": record.get("committee_id"),
-                "disbursement_amount": record.get("expenditure_amount") or 0.0,
-                "disbursement_date": formatted_date,
-                "recipient_name": display_recipient,
-                "candidate_id": record.get("candidate_id"),
-                "beneficiary_candidate_id": record.get("candidate_id"),
-                "recipient_committee_id": None,
-                "record_type": "Super PAC IE"
-            })
-               
-            pagination = payload.get("pagination", {})
-            last_indexes = pagination.get("last_indexes")
-            if not last_indexes:
-                break
-                
-            params.update(last_indexes)
-            page += 1
-            time.sleep(0.5)
-            
-        except Exception as e:
-            print(f"     Error on Page {page}: {e}", flush=True)
-            break
-            
-    return records
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["full", "incremental"], default="incremental")
-    args = parser.parse_args()
-    
-    print(f"--- Pipeline Initializing ({args.mode.upper()} MODE) ---", flush=True)
-    api_key = os.environ.get("FEC_API_KEY", "DEMO_KEY")
-    
-    existing_data = []
-
-# 1. Initialize min_date at the top level first
-    min_date = None
-
-    if args.mode == "incremental":
-        try:
-            # 2. Assign the date inside the try block
-            min_date = get_latest_date_from_file("fec_data.json")
-            
-            with open("fec_data.json", "r") as f:
-                existing_data = json.load(f)
-                
-            # 3. Print the debug statement here safely
-            print(f"Loaded existing records. Fetching updates since: {min_date}", flush=True)
-            
-        except Exception:
-            print("No valid existing data. Falling back to full historical download.", flush=True)
-            min_date = None
-
-
-    
-
-    session = get_robust_session()
-    new_records = []
-
-    for pac in PAC_LIST:
-        print(f"\nProcessing PAC: {pac}", flush=True)
-        # Fetch BOTH schedules for every PAC
-        new_records.extend(fetch_schedule_b(session, api_key, pac, min_date))
-        new_records.extend(fetch_schedule_e(session, api_key, pac, min_date))
-
-    # Merge Data using transaction IDs or fallback composites to prevent duplicates
-    if args.mode == "incremental":
-        master_dict = {}
-        for record in existing_data:
-            key = record.get("transaction_id") or f"{record.get('committee_id')}-{record.get('disbursement_date')}-{record.get('disbursement_amount')}"
-            master_dict[key] = record
-            
-        for record in new_records:
-            key = record.get("transaction_id") or f"{record.get('committee_id')}-{record.get('disbursement_date')}-{record.get('disbursement_amount')}"
-            master_dict[key] = record
-
-        master_records = list(master_dict.values())
-    else:
-        master_records = new_records
-
-    # Save Output as standard JSON Array
-    try:
-        with open("fec_data.json", "w") as f:
-            json.dump(master_records, f, indent=2) 
-        print(f"\nSuccessfully saved {len(master_records)} total items to fec_data.json", flush=True)
-    except Exception as e:
-        print(f"Critical error writing file: {e}", flush=True)
-
-    print("--- Pipeline Finished ---", flush=True)
-
-if __name__ == "__main__":
-    main()
+    print(f"  -> Fetching Independent Expenditures (Schedule E)...", flush=
