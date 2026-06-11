@@ -6774,5 +6774,27 @@
     "beneficiary_candidate_id": null,
     "recipient_committee_id": "C00765719",
     "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "E78B6D8BBBE4A4DE9A15",
+    "committee_id": "C00799031",
+    "disbursement_amount": 1162132.0,
+    "disbursement_date": "2026-06-09T00:00:00",
+    "recipient_name": "TARGETED PLATFORM MEDIA LLC (IE: SUPPORTING BOAFO, ADRIAN)",
+    "candidate_id": "H6MD05321",
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E21747600CE7C402385D",
+    "committee_id": "C00799031",
+    "disbursement_amount": 125000.0,
+    "disbursement_date": "2026-06-09T00:00:00",
+    "recipient_name": "SKDKNICKERBOCKER LLC (IE: SUPPORTING BOAFO, ADRIAN)",
+    "candidate_id": "H6MD05321",
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
