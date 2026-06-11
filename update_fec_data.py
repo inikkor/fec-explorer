@@ -44,7 +44,6 @@ def get_latest_date_from_file(filename="fec_data.json"):
 def fetch_schedule_b(session, api_key, committee_id, min_date=None):
     """Fetches Direct Contributions (Schedule B)"""
     records = []
-    page = 1
     base_url = "https://api.open.fec.gov/v1/schedules/schedule_b/"
     
     params = {
@@ -56,9 +55,9 @@ def fetch_schedule_b(session, api_key, committee_id, min_date=None):
     if min_date: params["min_date"] = min_date
 
     print(f"  -> Fetching Direct Disbursements (Schedule B)...", flush=True)
+    page = 1
     while True:
         try:
-            params["page"] = page
             response = session.get(base_url, params=params, timeout=(5, 20))
             response.raise_for_status()
             
@@ -84,7 +83,12 @@ def fetch_schedule_b(session, api_key, committee_id, min_date=None):
                     "record_type": "Direct Contribution"
                 })
             
-            if page >= payload.get("pagination", {}).get("pages", 1): break
+            pagination = payload.get("pagination", {})
+            last_indexes = pagination.get("last_indexes")
+            if not last_indexes:
+                break
+                
+            params.update(last_indexes)
             page += 1
             time.sleep(0.5) # Be polite to the API
             
@@ -97,7 +101,6 @@ def fetch_schedule_b(session, api_key, committee_id, min_date=None):
 def fetch_schedule_e(session, api_key, committee_id, min_date=None):
     """Fetches Super PAC Independent Expenditures (Schedule E) with strict key normalization"""
     records = []
-    page = 1
     base_url = "https://api.open.fec.gov/v1/schedules/schedule_e/"
     
     params = {
@@ -109,9 +112,9 @@ def fetch_schedule_e(session, api_key, committee_id, min_date=None):
     if min_date: params["min_date"] = min_date
 
     print(f"  -> Fetching Independent Expenditures (Schedule E)...", flush=True)
+    page = 1
     while True:
         try:
-            params["page"] = page
             response = session.get(base_url, params=params, timeout=(5, 20))
             response.raise_for_status()
             
@@ -143,7 +146,12 @@ def fetch_schedule_e(session, api_key, committee_id, min_date=None):
                     "record_type": "Super PAC IE"
                 })
             
-            if page >= payload.get("pagination", {}).get("pages", 1): break
+            pagination = payload.get("pagination", {})
+            last_indexes = pagination.get("last_indexes")
+            if not last_indexes:
+                break
+                
+            params.update(last_indexes)
             page += 1
             time.sleep(0.5)
             
