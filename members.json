@@ -3214,5 +3214,11 @@
     "chamber": "rep",
     "state": "NJ",
     "party": "Democrat"
+  },
+  {
+    "name": "James Gallagher",
+    "chamber": "rep",
+    "state": "CA",
+    "party": "Republican"
   }
 ]
