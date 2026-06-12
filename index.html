@@ -4,9 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FEC PAC Contributions Explorer</title>
-    <!-- Load D3.js for the visual charts -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
+        /* Influence Score Bar Styles */
+        .influence-bar {
+            display: flex;
+            width: 100%;
+            min-width: 200px;
+            height: 24px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+            font-weight: bold;
+            font-size: 12px;
+            background-color: #f8f9fa;
+        }
+        .bar-direct {
+            background-color: #4CAF50; /* Green for Direct Support */
+            color: white;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .bar-ie {
+            background-color: #f44336; /* Red for Super PAC IE */
+            color: white;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .ratio-warning {
+            color: #f44336;
+            font-weight: bold;
+        }
+        
         :root {
             --bg-color: #f8fafc;
             --surface-color: #ffffff;
@@ -196,7 +231,6 @@
 
     <div id="status"></div>
 
-    <!-- The SVG Visualizations -->
     <div class="viz-container" id="vizContainer" style="display:none;">
         <div class="chamber-viz">
             <h2>House of Representatives</h2>
@@ -208,7 +242,6 @@
         </div>
     </div>
 
-    <!-- The Tooltip -->
     <div id="tooltip" class="tooltip"></div>
 
     <div class="table-container">
@@ -523,7 +556,17 @@
                     if (recName.includes(key)) {
                         const bioId = MAPPING_OVERRIDE[key];
                         if (aggregates[bioId]) {
-                            if (!isOpposition) aggregates[bioId].total += amount;
+                            if (!isOpposition) {
+                                aggregates[bioId].total += amount;
+                                aggregates[bioId].direct = aggregates[bioId].direct || 0;
+                                aggregates[bioId].ie = aggregates[bioId].ie || 0;
+                    
+                                if (r.record_type === "Super PAC IE") {
+                                    aggregates[bioId].ie += amount;
+                                } else {
+                                    aggregates[bioId].direct += amount;
+                                }
+                            }
                             matched = true; break;
                         }
                     }
@@ -535,7 +578,17 @@
                     for (let bioId in aggregates) {
                         if (targetIds.some(id => aggregates[bioId].fec_ids.includes(id)) || 
                            (recName.includes(aggregates[bioId].last_name) && !['PARTY', 'DCCC', 'NRCC'].some(k => recName.includes(k)))) {
-                            if (!isOpposition) aggregates[bioId].total += amount;
+                            if (!isOpposition) {
+                                aggregates[bioId].total += amount;
+                                aggregates[bioId].direct = aggregates[bioId].direct || 0;
+                                aggregates[bioId].ie = aggregates[bioId].ie || 0;
+                                
+                                if (r.record_type === "Super PAC IE") {
+                                    aggregates[bioId].ie += amount;
+                                } else {
+                                    aggregates[bioId].direct += amount;
+                                }
+                            }
                             matched = true; break;
                         }
                     }
@@ -622,19 +675,14 @@
                 statusEl.className = 'active success';
                 statusEl.innerHTML = window.zoomedFecIds ? `Viewing isolated records for clicked member.` : `Successfully retrieved records.`;
 
-            } else {
+            } else if (viewMode === 'zero') {
+                // Keep the simple 3-column view for members with $0
                 let filteredAggregates = allMembers.filter(m => {
                     if (window.zoomedFecIds) return window.zoomedFecIds.includes(m.fec_ids[0]);
                     if (stateSelection && m.state !== stateSelection) return false;
                     if (chamberSelection && m.type !== chamberSelection) return false;
                     return true;
-                });
-
-                if (viewMode === 'zero') {
-                    filteredAggregates = filteredAggregates.filter(r => r.total === 0).sort((a, b) => a.name.localeCompare(b.name));
-                } else {
-                    filteredAggregates = filteredAggregates.filter(r => r.total > 0).sort((a, b) => b.total - a.total);
-                }
+                }).filter(r => r.total === 0).sort((a, b) => a.name.localeCompare(b.name));
 
                 thead.innerHTML = `<tr><th width="50%">Legislator</th><th width="25%">State / Party</th><th width="25%">Total Received</th></tr>`;
                 if (filteredAggregates.length === 0) {
@@ -644,12 +692,69 @@
                         const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(r.total);
                         const pDetails = getPartyDetails(r.party);
                         const row = document.createElement('tr');
-                        row.innerHTML = `<td><strong class="${pDetails.className}">${r.name} (${pDetails.initial})</strong><br><small style="color:var(--text-muted)">${r.type}</small></td><td>${r.state} - ${r.party}</td><td class="amount-cell" style="color: ${r.total === 0 ? 'var(--text-muted)' : 'inherit'}">${formattedAmount}</td>`;
+                        row.innerHTML = `<td><strong class="${pDetails.className}">${r.name} (${pDetails.initial})</strong><br><small style="color:var(--text-muted)">${r.type}</small></td><td>${r.state} - ${r.party}</td><td class="amount-cell" style="color: var(--text-muted)">${formattedAmount}</td>`;
                         body.appendChild(row);
                     });
                 }
                 statusEl.className = 'active success';
-                statusEl.innerHTML = viewMode === 'zero' ? `Found ${filteredAggregates.length} members with $0.` : `Aggregated donations for ${filteredAggregates.length} members.`;
+                statusEl.innerHTML = `Found ${filteredAggregates.length} members with $0.`;
+                
+            } else {
+                // THE NEW INFLUENCE BAR VIEW for Aggregated Leaderboard!
+                let filteredAggregates = allMembers.filter(m => {
+                    if (window.zoomedFecIds) return window.zoomedFecIds.includes(m.fec_ids[0]);
+                    if (stateSelection && m.state !== stateSelection) return false;
+                    if (chamberSelection && m.type !== chamberSelection) return false;
+                    return true;
+                }).filter(r => r.total > 0).sort((a, b) => b.total - a.total);
+
+                thead.innerHTML = `<tr><th width="5%">Rank</th><th width="25%">Legislator</th><th width="35%">Influence Score (Constituent vs. PAC)</th><th width="15%">Outside Ratio</th><th width="20%">Total Received</th></tr>`;
+                
+                if (filteredAggregates.length === 0) {
+                     body.innerHTML = '<tr><td colspan="5" class="empty-state">No members matched this criteria.</td></tr>';
+                } else {
+                    filteredAggregates.forEach((m, index) => {
+                        // Calculate Influence
+                        let pctDirect = m.total > 0 ? Math.round(((m.direct || 0) / m.total) * 100) : 0;
+                        let pctIE = m.total > 0 ? Math.round(((m.ie || 0) / m.total) * 100) : 0;
+                        
+                        let ratioText = "0.0x";
+                        let ratioClass = "";
+                        if ((m.direct || 0) > 0) {
+                            let ratio = ((m.ie || 0) / m.direct);
+                            ratioText = ratio.toFixed(1) + "x";
+                            if (ratio > 1.0) ratioClass = "ratio-warning";
+                        } else if ((m.ie || 0) > 0) {
+                            ratioText = "Infinite";
+                            ratioClass = "ratio-warning";
+                        }
+
+                        const formatMoney = (amt) => "$" + (amt || 0).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+                        const pDetails = getPartyDetails(m.party);
+
+                        // Build Row
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td><strong class="${pDetails.className}">${m.name} (${pDetails.initial})</strong><br><small style="color:var(--text-muted)">${m.state} - ${m.type}</small></td>
+                            <td>
+                                <div class="influence-bar">
+                                    <div class="bar-direct" style="width: ${pctDirect}%" title="${formatMoney(m.direct)} Direct Support">
+                                        ${pctDirect > 5 ? pctDirect + '%' : ''}
+                                    </div>
+                                    <div class="bar-ie" style="width: ${pctIE}%" title="${formatMoney(m.ie)} Super PAC Ads">
+                                        ${pctIE > 5 ? pctIE + '%' : ''}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="${ratioClass}">${ratioText}</td>
+                            <td class="amount-cell">${formatMoney(m.total)}</td>
+                        `;
+                        body.appendChild(row);
+                    });
+                }
+                statusEl.className = 'active success';
+                statusEl.innerHTML = `Aggregated donations for ${filteredAggregates.length} members.`;
             }
 
             // --- 6. POPULATE DEBUGGER TABLE ---
