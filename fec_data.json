@@ -405095,5 +405095,16 @@
     "beneficiary_candidate_id": "H6MD05321",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E8106E8A5E41345D59D1",
+    "committee_id": "C00799031",
+    "disbursement_amount": 13412.0,
+    "disbursement_date": "2026-06-15T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Adrian Boafo)",
+    "candidate_id": "H6MD05321",
+    "beneficiary_candidate_id": "H6MD05321",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
