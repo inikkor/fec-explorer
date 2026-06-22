@@ -405161,5 +405161,60 @@
     "beneficiary_candidate_id": "H6MD05321",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E61ACC7D009DF4D13A8D",
+    "committee_id": "C00799031",
+    "disbursement_amount": 120000.0,
+    "disbursement_date": "2026-06-19T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Adrian Boafo)",
+    "candidate_id": "H6MD05321",
+    "beneficiary_candidate_id": "H6MD05321",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E60E76A1248C24AD5882",
+    "committee_id": "C00799031",
+    "disbursement_amount": 2984.0,
+    "disbursement_date": "2026-06-19T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Adrian Boafo)",
+    "candidate_id": "H6MD05321",
+    "beneficiary_candidate_id": "H6MD05321",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EA4E0C029D0694EF8BC2",
+    "committee_id": "C00799031",
+    "disbursement_amount": 17788.01,
+    "disbursement_date": "2026-06-18T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E32601AB5E6284D27BE2",
+    "committee_id": "C00799031",
+    "disbursement_amount": 124852.0,
+    "disbursement_date": "2026-06-18T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Adrian Boafo)",
+    "candidate_id": "H6MD05321",
+    "beneficiary_candidate_id": "H6MD05321",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EAD634EA799A84E88949",
+    "committee_id": "C00799031",
+    "disbursement_amount": 51638.88,
+    "disbursement_date": "2026-06-18T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Adrian Boafo)",
+    "candidate_id": "H6MD05321",
+    "beneficiary_candidate_id": "H6MD05321",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
