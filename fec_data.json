@@ -405238,5 +405238,71 @@
     "beneficiary_candidate_id": "S6MI00426",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E50E3F2E4731646088E0",
+    "committee_id": "C00799031",
+    "disbursement_amount": 20000.0,
+    "disbursement_date": "2026-06-30T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EDE3B222C8490450688C",
+    "committee_id": "C00799031",
+    "disbursement_amount": 270000.0,
+    "disbursement_date": "2026-06-30T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EB0A49AFC73B54B848EA",
+    "committee_id": "C00799031",
+    "disbursement_amount": 90000.0,
+    "disbursement_date": "2026-06-30T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EB11622FAD8004624A94",
+    "committee_id": "C00799031",
+    "disbursement_amount": 2056357.5,
+    "disbursement_date": "2026-06-30T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E7ED3B84B5A17431682F",
+    "committee_id": "C00799031",
+    "disbursement_amount": 685452.5,
+    "disbursement_date": "2026-06-30T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EE4862BF603D343B5B91",
+    "committee_id": "C00799031",
+    "disbursement_amount": 307108.51,
+    "disbursement_date": "2026-06-30T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
