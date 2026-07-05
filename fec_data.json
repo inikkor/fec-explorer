@@ -405304,5 +405304,27 @@
     "beneficiary_candidate_id": "S6MI00426",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503336456",
+    "committee_id": "C00815753",
+    "disbursement_amount": 5000.0,
+    "disbursement_date": "2026-07-02T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Mallory Mcmorrow)",
+    "candidate_id": "S6MI00392",
+    "beneficiary_candidate_id": "S6MI00392",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503336455",
+    "committee_id": "C00815753",
+    "disbursement_amount": 45000.0,
+    "disbursement_date": "2026-07-02T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Mallory Mcmorrow)",
+    "candidate_id": "S6MI00392",
+    "beneficiary_candidate_id": "S6MI00392",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
