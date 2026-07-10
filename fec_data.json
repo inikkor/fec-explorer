@@ -405381,5 +405381,38 @@
     "beneficiary_candidate_id": "H4MO01134",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E9C7405713A854A68881",
+    "committee_id": "C00799031",
+    "disbursement_amount": 172424.85,
+    "disbursement_date": "2026-07-08T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E9C03CBC44D284FEE913",
+    "committee_id": "C00799031",
+    "disbursement_amount": 307108.51,
+    "disbursement_date": "2026-07-07T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E3FC6031DFC154D93B08",
+    "committee_id": "C00799031",
+    "disbursement_amount": 143165.47,
+    "disbursement_date": "2026-07-06T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
