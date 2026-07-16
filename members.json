@@ -3214,5 +3214,11 @@
     "chamber": "rep",
     "state": "CA",
     "party": "Republican"
+  },
+  {
+    "name": "Darline Graham Nordone",
+    "chamber": "sen",
+    "state": "SC",
+    "party": "Republican"
   }
 ]
