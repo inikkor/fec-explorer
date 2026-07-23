@@ -405678,5 +405678,27 @@
     "beneficiary_candidate_id": "S6MI00426",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EF2A1E13278924169A03",
+    "committee_id": "C00799031",
+    "disbursement_amount": 276100.95,
+    "disbursement_date": "2026-07-20T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E7A17BFBF457C4567940",
+    "committee_id": "C00799031",
+    "disbursement_amount": 62226.37,
+    "disbursement_date": "2026-07-20T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Cori Bush)",
+    "candidate_id": "H8MO01143",
+    "beneficiary_candidate_id": "H8MO01143",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
