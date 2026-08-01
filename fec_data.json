@@ -405942,5 +405942,82 @@
     "beneficiary_candidate_id": "H8MO01143",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E510DA34DD94C4EBA999",
+    "committee_id": "C00799031",
+    "disbursement_amount": 9797.36,
+    "disbursement_date": "2026-07-30T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E615209634B23404484F",
+    "committee_id": "C00799031",
+    "disbursement_amount": 9797.37,
+    "disbursement_date": "2026-07-30T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E378DB4A33DF94AF8B7F",
+    "committee_id": "C00799031",
+    "disbursement_amount": 100000.0,
+    "disbursement_date": "2026-07-29T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E341408B3816B40C5AAE",
+    "committee_id": "C00799031",
+    "disbursement_amount": 14950.0,
+    "disbursement_date": "2026-07-29T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E9F4773D9CFD84113BC1",
+    "committee_id": "C00799031",
+    "disbursement_amount": 296002.32,
+    "disbursement_date": "2026-07-29T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "ED9369C4A4BC94F7D845",
+    "committee_id": "C00799031",
+    "disbursement_amount": 30781.18,
+    "disbursement_date": "2026-07-29T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Wesley Mr Bell)",
+    "candidate_id": "H4MO01134",
+    "beneficiary_candidate_id": "H4MO01134",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E0F10E792C85A42D2828",
+    "committee_id": "C00799031",
+    "disbursement_amount": 30781.18,
+    "disbursement_date": "2026-07-29T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Cori Bush)",
+    "candidate_id": "H8MO01143",
+    "beneficiary_candidate_id": "H8MO01143",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
