@@ -406019,5 +406019,16 @@
     "beneficiary_candidate_id": "H8MO01143",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "SE.5455",
+    "committee_id": "C00528554",
+    "disbursement_amount": 470000.0,
+    "disbursement_date": "2026-05-15T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Ed Gallrein)",
+    "candidate_id": "H6KY04171",
+    "beneficiary_candidate_id": "H6KY04171",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
