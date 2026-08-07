@@ -406030,5 +406030,49 @@
     "beneficiary_candidate_id": "H6KY04171",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E97B5571064E34EA6AC8",
+    "committee_id": "C00799031",
+    "disbursement_amount": 123398.73,
+    "disbursement_date": "2026-08-04T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Aisha Wahab)",
+    "candidate_id": "H0CA15213",
+    "beneficiary_candidate_id": "H0CA15213",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EA6E36470EB8042E6AD8",
+    "committee_id": "C00799031",
+    "disbursement_amount": 289095.6,
+    "disbursement_date": "2026-08-04T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Melissa Hernandez)",
+    "candidate_id": "H6CA14163",
+    "beneficiary_candidate_id": "H6CA14163",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E57E4F13DC48241508FC",
+    "committee_id": "C00799031",
+    "disbursement_amount": 95101.57,
+    "disbursement_date": "2026-08-04T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Melissa Hernandez)",
+    "candidate_id": "H6CA14163",
+    "beneficiary_candidate_id": "H6CA14163",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EE020631BE7BE4D15B4F",
+    "committee_id": "C00799031",
+    "disbursement_amount": 695370.4,
+    "disbursement_date": "2026-08-04T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Aisha Wahab)",
+    "candidate_id": "H0CA15213",
+    "beneficiary_candidate_id": "H0CA15213",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
