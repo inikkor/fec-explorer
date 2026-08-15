@@ -406140,5 +406140,49 @@
     "beneficiary_candidate_id": "H6CA14163",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503413555",
+    "committee_id": "C00815753",
+    "disbursement_amount": 1000.0,
+    "disbursement_date": "2026-08-13T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Aisha Wahab)",
+    "candidate_id": "H0CA15213",
+    "beneficiary_candidate_id": "H0CA15213",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503413557",
+    "committee_id": "C00815753",
+    "disbursement_amount": 4000.0,
+    "disbursement_date": "2026-08-12T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Aisha Wahab)",
+    "candidate_id": "H0CA15213",
+    "beneficiary_candidate_id": "H0CA15213",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503413556",
+    "committee_id": "C00815753",
+    "disbursement_amount": 4000.0,
+    "disbursement_date": "2026-08-12T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Aisha Wahab)",
+    "candidate_id": "H0CA15213",
+    "beneficiary_candidate_id": "H0CA15213",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503413554",
+    "committee_id": "C00815753",
+    "disbursement_amount": 99000.0,
+    "disbursement_date": "2026-08-12T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Aisha Wahab)",
+    "candidate_id": "H0CA15213",
+    "beneficiary_candidate_id": "H0CA15213",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
