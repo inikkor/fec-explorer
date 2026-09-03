@@ -3220,5 +3220,11 @@
     "chamber": "sen",
     "state": "SC",
     "party": "Republican"
+  },
+  {
+    "name": "Everton Blair",
+    "chamber": "rep",
+    "state": "GA",
+    "party": "D"
   }
 ]
