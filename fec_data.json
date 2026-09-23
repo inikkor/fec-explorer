@@ -406184,5 +406184,104 @@
     "beneficiary_candidate_id": "H0CA15213",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "500764013",
+    "committee_id": "C00710848",
+    "disbursement_amount": 69.15,
+    "disbursement_date": "2026-08-31T00:00:00",
+    "recipient_name": "AMALGAMATED BANK",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500764012",
+    "committee_id": "C00710848",
+    "disbursement_amount": 80.76,
+    "disbursement_date": "2026-08-31T00:00:00",
+    "recipient_name": "AMALGAMATED BANK",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500764022",
+    "committee_id": "C00710848",
+    "disbursement_amount": 8.1,
+    "disbursement_date": "2026-08-31T00:00:00",
+    "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500764021",
+    "committee_id": "C00710848",
+    "disbursement_amount": 16.06,
+    "disbursement_date": "2026-08-30T00:00:00",
+    "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500764023",
+    "committee_id": "C00710848",
+    "disbursement_amount": 987.5,
+    "disbursement_date": "2026-08-23T00:00:00",
+    "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500764020",
+    "committee_id": "C00710848",
+    "disbursement_amount": 39.73,
+    "disbursement_date": "2026-08-23T00:00:00",
+    "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500764031",
+    "committee_id": "C00710848",
+    "disbursement_amount": 2500.0,
+    "disbursement_date": "2026-08-18T00:00:00",
+    "recipient_name": "MELISSA HERNANDEZ FOR CONGRESS",
+    "candidate_id": "H6CA14163",
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": "C00932541",
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500764019",
+    "committee_id": "C00710848",
+    "disbursement_amount": 39.29,
+    "disbursement_date": "2026-08-16T00:00:00",
+    "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500764030",
+    "committee_id": "C00710848",
+    "disbursement_amount": 2500.0,
+    "disbursement_date": "2026-08-13T00:00:00",
+    "recipient_name": "MELISSA HERNANDEZ FOR CONGRESS",
+    "candidate_id": "H6CA14163",
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": "C00932541",
+    "record_type": "Direct Contribution"
   }
 ]
