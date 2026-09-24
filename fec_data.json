@@ -406283,5 +406283,71 @@
     "beneficiary_candidate_id": null,
     "recipient_committee_id": "C00932541",
     "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "B4080DD470C3648F1BB7",
+    "committee_id": "C00799031",
+    "disbursement_amount": 27884.02,
+    "disbursement_date": "2026-08-31T00:00:00",
+    "recipient_name": "FIDELITY",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "B1E889A5E25734029B8D",
+    "committee_id": "C00799031",
+    "disbursement_amount": 252.5,
+    "disbursement_date": "2026-08-31T00:00:00",
+    "recipient_name": "CHAIN BRIDGE BANK",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "EE911A8ED92544D1CA65",
+    "committee_id": "C00799031",
+    "disbursement_amount": 19086.07,
+    "disbursement_date": "2026-08-03T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Haley Stevens)",
+    "candidate_id": "S6MI00426",
+    "beneficiary_candidate_id": "S6MI00426",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "EBA99FADC28764A39A6E",
+    "committee_id": "C00799031",
+    "disbursement_amount": 1004.53,
+    "disbursement_date": "2026-08-03T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503413591",
+    "committee_id": "C00815753",
+    "disbursement_amount": 119.27,
+    "disbursement_date": "2026-08-31T00:00:00",
+    "recipient_name": "AMALGAMATED BANK",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500764086",
+    "committee_id": "C00804823",
+    "disbursement_amount": 153.68,
+    "disbursement_date": "2026-08-31T00:00:00",
+    "recipient_name": "AMALGAMATED BANK",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
   }
 ]
