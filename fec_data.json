@@ -406349,5 +406349,27 @@
     "beneficiary_candidate_id": null,
     "recipient_committee_id": null,
     "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "503413615",
+    "committee_id": "C00441949",
+    "disbursement_amount": 245.49,
+    "disbursement_date": "2026-08-31T00:00:00",
+    "recipient_name": "STRIPE",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "503413611",
+    "committee_id": "C00441949",
+    "disbursement_amount": 45.0,
+    "disbursement_date": "2026-08-31T00:00:00",
+    "recipient_name": "STRIPE",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
   }
 ]
