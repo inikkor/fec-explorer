@@ -406371,5 +406371,60 @@
     "beneficiary_candidate_id": null,
     "recipient_committee_id": null,
     "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "500766823",
+    "committee_id": "C00710848",
+    "disbursement_amount": 900000.0,
+    "disbursement_date": "2026-09-28T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Jennifer Kiggans)",
+    "candidate_id": "H2VA02064",
+    "beneficiary_candidate_id": "H2VA02064",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "SB21B.10616",
+    "committee_id": "C00135541",
+    "disbursement_amount": 85.0,
+    "disbursement_date": "2026-09-15T00:00:00",
+    "recipient_name": "INTUIT",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "SB21B.10615",
+    "committee_id": "C00135541",
+    "disbursement_amount": 115.0,
+    "disbursement_date": "2026-09-15T00:00:00",
+    "recipient_name": "CONSTANT CONTACT .COM",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "SB21B.10619",
+    "committee_id": "C00135541",
+    "disbursement_amount": 9.16,
+    "disbursement_date": "2026-09-09T00:00:00",
+    "recipient_name": "PAYPAL",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "SB21B.10621",
+    "committee_id": "C00135541",
+    "disbursement_amount": 80.9,
+    "disbursement_date": "2026-09-05T00:00:00",
+    "recipient_name": "MERCHANT SERVICES CREDIT PROCESSING",
+    "candidate_id": null,
+    "beneficiary_candidate_id": null,
+    "recipient_committee_id": null,
+    "record_type": "Direct Contribution"
   }
 ]
