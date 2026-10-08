@@ -406426,5 +406426,27 @@
     "beneficiary_candidate_id": null,
     "recipient_committee_id": null,
     "record_type": "Direct Contribution"
+  },
+  {
+    "transaction_id": "SE.5478",
+    "committee_id": "C00528554",
+    "disbursement_amount": 5000.0,
+    "disbursement_date": "2026-10-04T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "SE.5479",
+    "committee_id": "C00528554",
+    "disbursement_amount": 10298.37,
+    "disbursement_date": "2026-10-04T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
