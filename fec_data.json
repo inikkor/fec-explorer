@@ -406503,5 +406503,16 @@
     "beneficiary_candidate_id": "S6MI00418",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503464016",
+    "committee_id": "C00815753",
+    "disbursement_amount": 470000.0,
+    "disbursement_date": "2026-10-13T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Michael Jr Collins)",
+    "candidate_id": "S6GA00390",
+    "beneficiary_candidate_id": "S6GA00390",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
