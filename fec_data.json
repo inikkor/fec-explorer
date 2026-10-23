@@ -406569,5 +406569,71 @@
     "beneficiary_candidate_id": "S6MI00418",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503483903",
+    "committee_id": "C00815753",
+    "disbursement_amount": 6000.0,
+    "disbursement_date": "2026-10-20T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Mariannette Jane Miller-Meeks)",
+    "candidate_id": "H8IA02043",
+    "beneficiary_candidate_id": "H8IA02043",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503483904",
+    "committee_id": "C00815753",
+    "disbursement_amount": 4070.0,
+    "disbursement_date": "2026-10-20T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Mariannette Jane Miller-Meeks)",
+    "candidate_id": "H8IA02043",
+    "beneficiary_candidate_id": "H8IA02043",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503483902",
+    "committee_id": "C00815753",
+    "disbursement_amount": 43831.54,
+    "disbursement_date": "2026-10-20T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Ryan Edward Mackenzie)",
+    "candidate_id": "H8PA15195",
+    "beneficiary_candidate_id": "H8PA15195",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503483895",
+    "committee_id": "C00815753",
+    "disbursement_amount": 208423.0,
+    "disbursement_date": "2026-10-19T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Mariannette Jane Miller-Meeks)",
+    "candidate_id": "H8IA02043",
+    "beneficiary_candidate_id": "H8IA02043",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "503483894",
+    "committee_id": "C00815753",
+    "disbursement_amount": 234750.0,
+    "disbursement_date": "2026-10-19T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Ryan Edward Mackenzie)",
+    "candidate_id": "H8PA15195",
+    "beneficiary_candidate_id": "H8PA15195",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "SE.5548",
+    "committee_id": "C00528554",
+    "disbursement_amount": 55435.85,
+    "disbursement_date": "2026-10-20T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
