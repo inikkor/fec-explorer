@@ -406657,5 +406657,38 @@
     "beneficiary_candidate_id": "S6MI00418",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E3621AE0E838C4C24BAC",
+    "committee_id": "C00799031",
+    "disbursement_amount": 94620.36,
+    "disbursement_date": "2026-10-23T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "500774119",
+    "committee_id": "C00710848",
+    "disbursement_amount": 16000.0,
+    "disbursement_date": "2026-10-21T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Laura Gillen)",
+    "candidate_id": "H4NY04158",
+    "beneficiary_candidate_id": "H4NY04158",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "500774118",
+    "committee_id": "C00710848",
+    "disbursement_amount": 16000.0,
+    "disbursement_date": "2026-10-21T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Thomas Suozzi)",
+    "candidate_id": "H6NY03247",
+    "beneficiary_candidate_id": "H6NY03247",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
