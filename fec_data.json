@@ -406690,5 +406690,16 @@
     "beneficiary_candidate_id": "H6NY03247",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "500774260",
+    "committee_id": "C00710848",
+    "disbursement_amount": 4950000.0,
+    "disbursement_date": "2026-10-22T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Laurie Buckhout)",
+    "candidate_id": "H4NC01137",
+    "beneficiary_candidate_id": "H4NC01137",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
