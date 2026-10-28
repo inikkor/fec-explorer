@@ -406701,5 +406701,38 @@
     "beneficiary_candidate_id": "H4NC01137",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "500774328",
+    "committee_id": "C00710848",
+    "disbursement_amount": 1999145.0,
+    "disbursement_date": "2026-10-23T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Shomari C. Figures)",
+    "candidate_id": "H4AL02170",
+    "beneficiary_candidate_id": "H4AL02170",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "500774330",
+    "committee_id": "C00710848",
+    "disbursement_amount": 3000.0,
+    "disbursement_date": "2026-10-23T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Laura Gillen)",
+    "candidate_id": "H4NY04158",
+    "beneficiary_candidate_id": "H4NY04158",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "500774329",
+    "committee_id": "C00710848",
+    "disbursement_amount": 3000.0,
+    "disbursement_date": "2026-10-23T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Thomas Suozzi)",
+    "candidate_id": "H6NY03247",
+    "beneficiary_candidate_id": "H6NY03247",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
