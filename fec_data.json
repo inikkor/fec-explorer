@@ -406734,5 +406734,38 @@
     "beneficiary_candidate_id": "H6NY03247",
     "recipient_committee_id": null,
     "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E3F5AEC95799741788A5",
+    "committee_id": "C00799031",
+    "disbursement_amount": 64392.8,
+    "disbursement_date": "2026-10-27T00:00:00",
+    "recipient_name": "None (IE: SUPPORTING Michael J Rogers)",
+    "candidate_id": "S4MI00595",
+    "beneficiary_candidate_id": "S4MI00595",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E96DA65FB1E5345AEB8E",
+    "committee_id": "C00799031",
+    "disbursement_amount": 7154.76,
+    "disbursement_date": "2026-10-27T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
+  },
+  {
+    "transaction_id": "E901385FB77194403926",
+    "committee_id": "C00799031",
+    "disbursement_amount": 94620.36,
+    "disbursement_date": "2026-10-26T00:00:00",
+    "recipient_name": "None (IE: OPPOSING Abdul El-Sayed)",
+    "candidate_id": "S6MI00418",
+    "beneficiary_candidate_id": "S6MI00418",
+    "recipient_committee_id": null,
+    "record_type": "Super PAC IE"
   }
 ]
